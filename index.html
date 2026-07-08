@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#534AB7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gradebook">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Gradebook</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F2F2F7; }
+    button { font-family: inherit; }
+    input, textarea { font-family: inherit; outline: none; }
+    input:focus, textarea:focus { border-color: #534AB7 !important; box-shadow: 0 0 0 2px #534AB720; }
+    input[type="range"] { accent-color: #534AB7; height: 4px; }
+    input[type="number"]::-webkit-inner-spin-button { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef } = React;
+
+    const PURPLE   = '#534AB7';
+    const CLASS_COLORS=['#534AB7','#0D7D6C','#1D6FA4','#2B7A35','#A0301E','#B5590D','#8B3A8B','#3D5A80'];
+    const getCC=cls=>cls?.color||PURPLE;
+    const SK       = 'gradebook_v1';
+    const uid       = () => Math.random().toString(36).slice(2, 9);
+    const todayISO  = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+    const fmtDate   = s => new Date(s + 'T12:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const fmtShort  = s => new Date(s + 'T12:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const avg       = arr => { const v=arr.filter(n=>n!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; };
+    const fmtAvg    = n => n!=null?n.toFixed(2):'—';
+    const clamp     = (v,min,max) => Math.max(min,Math.min(max,v));
+    const inSem     = (d,f,c) => !f||f==='all'||!c||!d ? true : f==='s1' ? d<c : d>=c;
+
+    const META_KEY     = 'gradebook_meta';
+    const DEFAULT_META = {lastBackupDate:null,lastDataChangeDate:null,backupReminderDays:7,gistId:null,lastSyncDate:null,gistUpdatedAt:null};
+    function loadMeta(){try{const r=localStorage.getItem(META_KEY);return r?{...DEFAULT_META,...JSON.parse(r)}:DEFAULT_META;}catch{return DEFAULT_META;}}
+    function saveMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m));}catch(e){}}
+    function daysBetween(a,b){const s=x=>(x||'').slice(0,10);return Math.max(0,Math.floor((new Date(s(b)+'T00:00:00')-new Date(s(a)+'T00:00:00'))/864e5));}
+    const AUTH_KEY='gradebook_auth';
+    function loadAuth(){try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'{}');}catch{return {};}}
+    function saveAuth(a){try{localStorage.setItem(AUTH_KEY,JSON.stringify(a));}catch(e){}}
+
+    async function githubAPI(method,path,token,body=null){
+      const res=await fetch('https://api.github.com'+path,{
+        method,
+        headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},
+        body:body?JSON.stringify(body):null,
+      });
+      if(!res.ok){
+        if(res.status===401)throw new Error('Invalid GitHub token — check your Personal Access Token.');
+        if(res.status===404)throw new Error('Gist not found — it may have been deleted on GitHub.');
+        throw new Error('GitHub API error: '+res.status);
+      }
+      return res.json();
+    }
+
+    function backupDue(m){
+      if(!m.lastDataChangeDate)return false;
+      if(!m.lastBackupDate)return daysBetween(m.lastDataChangeDate,todayISO())>=(m.backupReminderDays||7);
+      if(m.lastBackupDate.slice(0,10)>=m.lastDataChangeDate.slice(0,10))return false;
+      return daysBetween(m.lastBackupDate,todayISO())>=(m.backupReminderDays||7);
+    }
+
+    function weekStart(s) {
+      const d=new Date(s+'T12:00'); const dow=(d.getDay()+6)%7;
+      d.setDate(d.getDate()-dow); return d.toISOString().slice(0,10);
+    }
+
+    const GS = {
+      1:{bg:'#EAF3DE',fg:'#27500A',bd:'#C0DD97'}, 2:{bg:'#E1F5EE',fg:'#085041',bd:'#9FE1CB'},
+      3:{bg:'#FAEEDA',fg:'#633806',bd:'#FAC775'}, 4:{bg:'#FAECE7',fg:'#993C1D',bd:'#F0997B'},
+      5:{bg:'#FCEBEB',fg:'#791F1F',bd:'#F7C1C1'},
+    };
+    const TS = {
+      Exam:{bg:'#FDEAEA',fg:'#9B1C1C'}, Test:{bg:'#E6F1FB',fg:'#0C447C'},
+      Presentation:{bg:'#D4F5E4',fg:'#0A5F2E'}, Homework:{bg:'#F1EFE8',fg:'#444441'},
+    };
+    const TYPE_PLURAL = { Exam:'Exams', Test:'Tests', Presentation:'Presentations', Homework:'Homework' };
+    const TYPE_ORDER  = ['Exam','Test','Presentation','Homework'];
+
+    const CS = {
+      done:{bg:'#EAF3DE',fg:'#27500A',bd:'#C0DD97'},
+      partial:{bg:'#FAEEDA',fg:'#633806',bd:'#FAC775'},
+      not_done:{bg:'#F5F5F5',fg:'#777777',bd:'#CCCCCC'},
+    };
+    const CL = { done:'Done', partial:'Partial', not_done:'Not done' };
+
+    // ── Weights ────────────────────────────────────────────────────────────────
+    const DEFAULT_THRESHOLDS = [1.5, 2.5, 3.5, 4.5];
+    function applyThresholds(grade, thresholds){
+      if(grade==null)return null;
+      const t=thresholds||DEFAULT_THRESHOLDS;
+      for(let i=0;i<t.length;i++)if(grade<t[i])return i+1;
+      return 5;
+    }
+    const DEFAULT_WEIGHTS = {
+      step1: { participation:40, homework:20, tests:30, presentations:10 },
+      step2: { participation:50, exams:50 },
+    };
+
+    function getWeights(cls) {
+      return {
+        step1: { ...DEFAULT_WEIGHTS.step1, ...(cls?.weights?.step1 || {}) },
+        step2: { ...DEFAULT_WEIGHTS.step2, ...(cls?.weights?.step2 || {}) },
+      };
+    }
+
+    function wSum(obj) { return Object.values(obj).reduce((a,b)=>a+(b||0),0); }
+
+    // ── HW helpers ─────────────────────────────────────────────────────────────
+    function pctToGrade(pct) { if(pct<0.5)return 5; return Math.max(1,4-Math.floor((pct-0.5)/0.125)); }
+    function hwStatsForStudent(data,classId,studentId,opts={}) {
+      const {semFilter='all',cutoff=null}=opts;
+      const evs=(data.gradeEvents||[]).filter(e=>e.classId===classId&&e.type==='Homework'&&inSem(e.date,semFilter,cutoff));
+      if(!evs.length)return null;
+      let tw=0,sc=0;
+      evs.forEach(ev=>{const w=ev.weight||2;tw+=w;const c=ev.completions?.[studentId];sc+=w*(c==='done'?1:c==='partial'?0.5:0);});
+      if(!tw)return null;
+      const pct=sc/tw; return {pct,grade:pctToGrade(pct),sc,tw};
+    }
+
+    // ── Grade calculation (two-step) ───────────────────────────────────────────
+    function computeGrade(data, classId, studentId, opts={}) {
+      const {semFilter='all',cutoff=null}=opts;
+      const cls=data.classes.find(c=>c.id===classId);
+      const w=getWeights(cls);
+
+      // Step 1 inputs
+      const prtGr=(data.lessons||[]).filter(l=>l.classId===classId&&!l.students[studentId]?.absent&&l.students[studentId]?.participation!=null&&inSem(l.date,semFilter,cutoff)).map(l=>l.students[studentId].participation);
+      const prtAvg=avg(prtGr);
+      const hwSt=hwStatsForStudent(data,classId,studentId,opts);
+      const tstGr=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type==='Test'&&ev.scores?.[studentId]!=null&&inSem(ev.date,semFilter,cutoff)).map(ev=>ev.scores[studentId]);
+      const tstAvg=avg(tstGr);
+      const presGr=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type==='Presentation'&&ev.scores?.[studentId]!=null&&inSem(ev.date,semFilter,cutoff)).map(ev=>ev.scores[studentId]);
+      const presAvg=avg(presGr);
+
+      const s1cats=[
+        {key:'participation', label:'Participation',  value:prtAvg},
+        {key:'homework',      label:'Homework',        value:hwSt?.grade??null},
+        {key:'tests',         label:'Tests',           value:tstAvg},
+        {key:'presentations', label:'Presentations',   value:presAvg},
+      ];
+      const s1comps=[],s1excl=[];
+      s1cats.forEach(({key,label,value})=>{
+        const wt=w.step1[key]||0; if(wt===0)return;
+        if(value!=null) s1comps.push({label,value,weight:wt}); else s1excl.push(label);
+      });
+      let s1grade=null;
+      if(s1comps.length){const tot=s1comps.reduce((s,c)=>s+c.weight,0);s1grade=s1comps.reduce((s,c)=>s+c.value*c.weight,0)/tot;}
+
+      // Step 2 inputs
+      const exmGr=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type==='Exam'&&ev.scores?.[studentId]!=null&&inSem(ev.date,semFilter,cutoff)).map(ev=>ev.scores[studentId]);
+      const exmAvg=avg(exmGr);
+
+      const s2cats=[
+        {key:'participation', label:'Overall Participation', value:s1grade},
+        {key:'exams',         label:'Exams',                 value:exmAvg},
+      ];
+      const s2comps=[],s2excl=[];
+      s2cats.forEach(({key,label,value})=>{
+        const wt=w.step2[key]||0; if(wt===0)return;
+        if(value!=null) s2comps.push({label,value,weight:wt}); else s2excl.push(label);
+      });
+      let finalGrade=null;
+      if(s2comps.length){const tot=s2comps.reduce((s,c)=>s+c.weight,0);finalGrade=s2comps.reduce((s,c)=>s+c.value*c.weight,0)/tot;}
+
+      const finalRounded=applyThresholds(finalGrade,cls?.thresholds);
+      return {step1:{comps:s1comps,excl:s1excl,grade:s1grade},step2:{comps:s2comps,excl:s2excl,grade:finalGrade},finalGrade,finalRounded,weights:w};
+    }
+
+    // ── Icons ──────────────────────────────────────────────────────────────────
+    const Ico=({path,size=16,color='currentColor',sw=2,children})=>(
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">
+        {path&&<path d={path}/>}{children}
+      </svg>
+    );
+    const ArrowLeft    = p=><Ico {...p} path="M19 12H5M12 19l-7-7 7-7"/>;
+    const Check        = p=><Ico {...p} path="M20 6L9 17l-5-5"/>;
+    const ChevronRight = p=><Ico {...p} path="M9 18l6-6-6-6"/>;
+    const ChevronDown  = p=><Ico {...p} path="M6 9l6 6 6-6"/>;
+    const Download     = p=><Ico {...p} path="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>;
+    const UploadIcon   = p=><Ico {...p} path="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>;
+    const Plus         = p=><Ico {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></Ico>;
+    const XIcon        = p=><Ico {...p} path="M18 6L6 18M6 6l12 12"/>;
+    const LockIcon     = p=><Ico {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></Ico>;
+    const UnlockIcon   = p=><Ico {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></Ico>;
+    const TrashIcon    = p=><Ico {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></Ico>;
+    const EditIcon     = p=><Ico {...p} path="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>;
+    const SyncIcon    = p=><Ico {...p}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></Ico>;
+    const SettingsIcon = p=><Ico {...p}><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></Ico>;
+
+    // ── Storage & migration ────────────────────────────────────────────────────
+    function loadData() {
+      try {
+        const raw=localStorage.getItem(SK); if(!raw)return null;
+        const d=JSON.parse(raw);
+        if(!Array.isArray(d.lessons)){
+          const lessons=[];
+          Object.entries(d.attendance||{}).forEach(([classId,dates])=>{
+            Object.entries(dates||{}).forEach(([date,students])=>{
+              const ns={};
+              Object.entries(students||{}).forEach(([sid,val])=>{
+                if(val===false)ns[sid]={absent:true,participation:null};
+                else if(val&&typeof val==='object'&&'absent' in val)ns[sid]=val;
+              });
+              lessons.push({id:uid(),classId,date,createdAt:0,students:ns});
+            });
+          });
+          d.lessons=lessons; delete d.attendance;
+        }
+        if(d.gradeEvents){
+          d.gradeEvents=d.gradeEvents.map(ev=>{
+            if(ev.type!=='Homework')return ev;
+            if(ev.completions)return ev;
+            const completions={};
+            Object.entries(ev.scores||{}).forEach(([sid,s])=>{completions[sid]=s<=2?'done':s===3?'partial':'not_done';});
+            const {scores,...rest}=ev; return {...rest,weight:ev.weight||2,completions};
+          });
+        }
+        return d;
+      } catch { return null; }
+    }
+    function saveData(d){try{localStorage.setItem(SK,JSON.stringify(d));}catch(e){console.error(e);}}
+
+    function exportJSON(data){
+      Object.assign(document.createElement('a'),{href:'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2)),download:`gradebook_backup_${todayISO()}.json`}).click();
+    }
+
+    // ── Export CSV ─────────────────────────────────────────────────────────────
+    function exportCSV(data){
+      const csv=rows=>rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const att=[['Class','Student','Date','Lesson','Present','Participation']];
+      const sL=[...(data.lessons||[])].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0));
+      const ldk={};sL.forEach(l=>{const k=`${l.classId}|${l.date}`;if(!ldk[k])ldk[k]=[];ldk[k].push(l.id);});
+      sL.forEach(l=>{
+        const c=data.classes.find(x=>x.id===l.classId);if(!c)return;
+        const k=`${l.classId}|${l.date}`,idx=ldk[k].indexOf(l.id),lbl=ldk[k].length>1?`Lesson ${idx+1}`:'';
+        c.students.forEach(s=>{const e=l.students[s.id],absent=e?.absent===true;att.push([c.name,s.name,l.date,lbl,absent?'No':'Yes',absent?'':(e?.participation??'')]);});
+      });
+      const gr=[['Class','Student','Type','Event','Date','Weight','Grade/Status']];
+      (data.gradeEvents||[]).forEach(ev=>{
+        const c=data.classes.find(x=>x.id===ev.classId);if(!c)return;
+        if(ev.type==='Homework')c.students.forEach(s=>gr.push([c.name,s.name,ev.type,ev.name,ev.date,ev.weight||2,ev.completions?.[s.id]??'']));
+        else c.students.forEach(s=>gr.push([c.name,s.name,ev.type,ev.name,ev.date,'',ev.scores?.[s.id]??'']));
+      });
+      const hwg=[['Class','Student','HW%','HW Grade','Final Grade']];
+      data.classes.forEach(c=>c.students.forEach(s=>{
+        const hw=hwStatsForStudent(data,c.id,s.id);
+        const fg=computeGrade(data,c.id,s.id).finalGrade;
+        hwg.push([c.name,s.name,hw?Math.round(hw.pct*100)+'%':'',hw?.grade??'',fg!=null?fg.toFixed(2):'']);
+      }));
+      Object.assign(document.createElement('a'),{href:'data:text/csv;charset=utf-8,'+encodeURIComponent('ATTENDANCE & PARTICIPATION\n'+csv(att)+'\n\nGRADES & HOMEWORK\n'+csv(gr)+'\n\nCOMPUTED GRADES\n'+csv(hwg)),download:'gradebook_export.csv'}).click();
+    }
+
+    // ── UI Atoms ───────────────────────────────────────────────────────────────
+    const Divider=()=><div style={{height:'0.5px',background:'#E0E0E5'}}/>;
+    const Card=({children,style})=><div style={{background:'white',border:'0.5px solid #E0E0E5',borderRadius:12,overflow:'hidden',...style}}>{children}</div>;
+
+    function Bar({title,onBack,right,color=PURPLE}){
+      return(<div style={{background:color,padding:'12px 16px',display:'flex',alignItems:'center',gap:10,position:'sticky',top:0,zIndex:100}}>
+        {onBack&&<button onClick={onBack} style={{background:'none',border:'none',color:'white',cursor:'pointer',padding:4,display:'flex',alignItems:'center'}}><ArrowLeft size={20} color="white"/></button>}
+        <span style={{color:'white',fontSize:16,fontWeight:500,flex:1}}>{title}</span>
+        {right&&<div style={{display:'flex',gap:8,alignItems:'center'}}>{right}</div>}
+      </div>);
+    }
+    function BarBtn({onClick,label,children}){return <button onClick={onClick} aria-label={label} style={{background:'rgba(255,255,255,0.18)',border:'none',color:'white',cursor:'pointer',padding:'6px 10px',borderRadius:6,display:'flex',alignItems:'center',gap:5,fontSize:13}}>{children}</button>;}
+    function TabBar({tabs,active,onChange,color=PURPLE}){
+      return(<div style={{display:'flex',background:'white',borderBottom:'0.5px solid #E0E0E5'}}>
+        {tabs.map(t=><button key={t} onClick={()=>onChange(t)} style={{flex:1,padding:'10px 4px',fontSize:tabs.length>2?13:14,fontWeight:active===t?500:400,color:active===t?color:'#666',background:'none',border:'none',borderBottom:active===t?`2px solid ${color}`:'2px solid transparent',cursor:'pointer',marginBottom:-1,whiteSpace:'nowrap'}}>{t}</button>)}
+      </div>);
+    }
+    function SegCtrl({options,value,onChange}){
+      return(<div style={{display:'flex',background:'#E8E8EE',borderRadius:8,padding:2,gap:2}}>
+        {options.map(([v,label])=><button key={v} onClick={()=>onChange(v)} style={{flex:1,padding:'7px 8px',borderRadius:6,background:value===v?'white':'transparent',border:'none',fontSize:13,color:value===v?'#1C1C1E':'#666',fontWeight:value===v?500:400,cursor:'pointer'}}>{label}</button>)}
+      </div>);
+    }
+    function PBtn({label,onClick,disabled}){return <button onClick={onClick} disabled={disabled} style={{width:'100%',padding:'12px',background:disabled?'#E8E8EE':PURPLE,color:disabled?'#AAA':'white',border:'none',borderRadius:8,fontSize:14,fontWeight:500,cursor:disabled?'default':'pointer'}}>{label}</button>;}
+    function OutlineBtn({label,onClick,danger}){return <button onClick={onClick} style={{width:'100%',padding:'12px',background:'none',border:`0.5px solid ${danger?'#F7C1C1':'#D0D0D8'}`,borderRadius:8,fontSize:14,color:danger?'#A32D2D':'#666',cursor:'pointer'}}>{label}</button>;}
+    function FI({label,hint,type='text',rows,disabled,...rest}){
+      const b={width:'100%',padding:'10px 12px',borderRadius:8,border:'0.5px solid #D0D0D8',fontSize:14,background:disabled?'#F2F2F7':'white',color:disabled?'#999':'#1C1C1E',fontFamily:'inherit',boxSizing:'border-box'};
+      return(<div>
+        {label&&<label style={{fontSize:12,color:disabled?'#BBB':'#666',display:'block',marginBottom:hint?2:6}}>{label}</label>}
+        {hint&&<div style={{fontSize:12,color:'#999',marginBottom:6}}>{hint}</div>}
+        {rows?<textarea rows={rows} style={{...b,resize:'vertical'}} disabled={disabled} {...rest}/>:<input type={type} style={b} disabled={disabled} {...rest}/>}
+      </div>);
+    }
+    function LockedBanner(){return <div style={{margin:'0 16px 0',padding:'8px 14px',background:'#F1EFE8',border:'0.5px solid #D8D4C8',borderRadius:8,display:'flex',alignItems:'center',gap:8}}><LockIcon size={13} color="#666"/><span style={{fontSize:12,color:'#555'}}>Locked — tap the lock icon to make changes.</span></div>;}
+    function SectionLabel({title,right}){
+      return(<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'16px 4px 8px'}}>
+        <span style={{fontSize:11,fontWeight:500,color:'#999',textTransform:'uppercase',letterSpacing:'0.06em'}}>{title}</span>
+        {right&&<span style={{fontSize:13,fontWeight:500,color:'#1C1C1E'}}>{right}</span>}
+      </div>);
+    }
+    // Header row that lives inside a Card for collapsible sections
+    function CollapsibleHeader({title,right,collapsed,onToggle}){
+      return(<div onClick={onToggle} style={{padding:'12px 16px',display:'flex',alignItems:'center',cursor:'pointer',gap:10,userSelect:'none'}}>
+        <div style={{display:'flex',flexShrink:0,transform:collapsed?'rotate(-90deg)':'rotate(0deg)',transition:'transform 0.15s'}}>
+          <ChevronDown size={13} color="#C0C0C0"/>
+        </div>
+        <span style={{fontSize:11,fontWeight:500,color:'#999',textTransform:'uppercase',letterSpacing:'0.06em',flex:1}}>{title}</span>
+        {right&&<span style={{fontSize:13,fontWeight:500,color:'#1C1C1E'}}>{right}</span>}
+      </div>);
+    }
+    function WeightBadge({weight}){if(weight==null)return null;return <span style={{fontSize:11,background:'#EEEDFE',color:'#3C3489',padding:'2px 7px',borderRadius:4}}>×{weight}</span>;}
+
+    // ── Weight slider + total ──────────────────────────────────────────────────
+    function WeightSlider({label,value,onChange,locked}){
+      return(<div style={{marginBottom:14}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:5}}>
+          <span style={{fontSize:13,color:'#1C1C1E'}}>{label}</span>
+          <div style={{display:'flex',alignItems:'center',gap:4}}>
+            <input type="number" min="0" max="100" value={value}
+              onChange={e=>!locked&&onChange(clamp(parseInt(e.target.value)||0,0,100))}
+              disabled={locked}
+              style={{width:52,padding:'5px 7px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,textAlign:'right',background:locked?'#F2F2F7':'white',color:'#1C1C1E',fontFamily:'inherit'}}
+            />
+            <span style={{fontSize:12,color:'#666'}}>%</span>
+          </div>
+        </div>
+        <input type="range" min="0" max="100" value={value}
+          onChange={e=>!locked&&onChange(Number(e.target.value))}
+          disabled={locked}
+          style={{width:'100%',cursor:locked?'default':'pointer',opacity:locked?0.4:1}}
+        />
+      </div>);
+    }
+
+    function WeightTotal({weights,step}){
+      const total=wSum(weights);
+      const ok=total===100;
+      return(<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderTop:'0.5px solid #E0E0E5',marginTop:4}}>
+        <span style={{fontSize:12,color:'#666'}}>Step {step} total</span>
+        <span style={{fontSize:13,fontWeight:500,color:ok?'#27500A':'#A32D2D'}}>{total}%{ok?' ✓':' — must equal 100'}</span>
+      </div>);
+    }
+
+    // ── Grade calculation display (StudentScreen) ──────────────────────────────
+    function GradeCalcSection({data,classId,studentId,collapsed,onToggle,semFilter='all',cutoff=null}){
+      const cls=data.classes.find(c=>c.id===classId);
+      const result=computeGrade(data,classId,studentId,{semFilter,cutoff});
+      const w=result.weights;
+      const s1ok=wSum(w.step1)===100, s2ok=wSum(w.step2)===100;
+      const noWeightsSet=!cls?.weights;
+      const headerRight=result.finalGrade!=null?`→ ${Math.round(result.finalGrade)} (${result.finalGrade.toFixed(2)})`:null;
+
+      function CompRow({label,value,weight}){
+        return(<div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',paddingBottom:5}}>
+          <span style={{fontSize:13,color:'#555'}}>{label} <span style={{fontSize:12,color:'#BBB'}}>({weight}%)</span></span>
+          <span style={{fontSize:13,color:'#1C1C1E',fontWeight:500}}>{typeof value==='number'?value.toFixed(2):value}</span>
+        </div>);
+      }
+
+      return(<Card>
+        <CollapsibleHeader title="Grade calculation" right={headerRight} collapsed={collapsed} onToggle={onToggle}/>
+        {!collapsed&&<>
+          <Divider/>
+          {noWeightsSet&&<div style={{margin:'10px 16px 0',padding:'10px 14px',background:'#F1EFE8',border:'0.5px solid #D8D4C8',borderRadius:8}}>
+            <p style={{fontSize:12,color:'#666'}}>Using default weights. Open Class Settings to configure weights for this class.</p>
+          </div>}
+          {(!s1ok||!s2ok)&&!noWeightsSet&&<div style={{margin:'10px 16px 0',padding:'10px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:8}}>
+            <p style={{fontSize:12,color:'#791F1F'}}>Weights don’t sum to 100 % — adjust them in Class Settings.</p>
+          </div>}
+          <div style={{padding:16}}>
+            <p style={{fontSize:11,fontWeight:500,color:'#999',letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:10}}>Step 1 — Overall Participation</p>
+            {result.step1.comps.map((c,i)=><CompRow key={i} label={c.label} value={c.value} weight={c.weight}/>)}
+            {result.step1.excl.length>0&&<div style={{padding:'6px 10px',background:'#FAEEDA',borderRadius:6,marginBottom:6}}><p style={{fontSize:12,color:'#633806'}}>⚠ No data — excluded: {result.step1.excl.join(', ')}</p></div>}
+            {result.step1.comps.length===0&&<p style={{fontSize:13,color:'#BBB',marginBottom:6}}>No data available for Step 1.</p>}
+            {result.step1.grade!=null&&<div style={{display:'flex',justifyContent:'space-between',alignItems:'center',borderTop:'0.5px solid #E0E0E5',paddingTop:8,marginTop:4}}>
+              <span style={{fontSize:13,fontWeight:500,color:'#1C1C1E'}}>Overall Participation</span>
+              <span style={{fontSize:13,fontWeight:500,color:PURPLE}}>{result.step1.grade.toFixed(2)} → {Math.round(result.step1.grade)}</span>
+            </div>}
+            <div style={{height:20}}/>
+            <p style={{fontSize:11,fontWeight:500,color:'#999',letterSpacing:'0.06em',textTransform:'uppercase',marginBottom:10}}>Step 2 — Final Grade</p>
+            {result.step2.comps.map((c,i)=><CompRow key={i} label={c.label} value={c.value} weight={c.weight}/>)}
+            {result.step2.excl.length>0&&<div style={{padding:'6px 10px',background:'#FAEEDA',borderRadius:6,marginBottom:6}}><p style={{fontSize:12,color:'#633806'}}>⚠ No data — excluded: {result.step2.excl.join(', ')}</p></div>}
+            {result.step2.comps.length===0&&<p style={{fontSize:13,color:'#BBB',marginBottom:6}}>No data available for Step 2.</p>}
+            {result.finalGrade!=null?(
+              <div style={{borderTop:'0.5px solid #E0E0E5',marginTop:8,paddingTop:20,textAlign:'center',paddingBottom:4}}>
+                <div style={{fontSize:64,fontWeight:700,color:PURPLE,lineHeight:1,letterSpacing:-2}}>{result.finalRounded}</div>
+                <div style={{fontSize:14,color:'#999',marginTop:6}}>{result.finalGrade.toFixed(2)}</div>
+              </div>
+            ):(
+              <div style={{borderTop:'0.5px solid #E0E0E5',marginTop:8,paddingTop:16,textAlign:'center',paddingBottom:4}}>
+                <p style={{fontSize:13,color:'#BBB'}}>Not enough data yet.</p>
+              </div>
+            )}
+          </div>
+        </>}
+      </Card>);
+    }
+
+    // ── Sync bar button (shared by Home + Class screens) ──────────────────────
+    function SyncBtn({auth,meta,syncState,triggerSync}){
+      if(!auth?.githubToken||!meta?.gistId)return null;
+      const icon=syncState==='syncing'?<SyncIcon size={16} color="rgba(255,255,255,0.5)"/>
+        :syncState==='ok'?<Check size={16} color="#C0DD97"/>
+        :syncState==='error'?<span style={{color:'#F7C1C1',fontSize:15}}>✕</span>
+        :syncState==='conflict'?<span style={{color:'#FAC775',fontSize:15}}>!</span>
+        :<SyncIcon size={16} color="white"/>;
+      return <BarBtn onClick={triggerSync} label="Sync">{icon}</BarBtn>;
+    }
+
+    // ── App shell ──────────────────────────────────────────────────────────────
+    function App(){
+      const [data,setData]=useState({classes:[],lessons:[],gradeEvents:[]});
+      const [meta,setMeta]=useState(loadMeta);
+      const [auth,setAuth]=useState(loadAuth);
+      function saveAuthState(a){setAuth(a);saveAuth(a);}
+      const [nav,setNav]=useState([{screen:'home',params:{}}]);
+      const [ready,setReady]=useState(false);
+      const dataLoadedRef=useRef(false);
+      const skipChangeRef=useRef(false);
+      function replaceData(d){skipChangeRef.current=true;setData(d);}
+      const cur=nav[nav.length-1];
+
+      useEffect(()=>{const d=loadData();if(d)setData({classes:[],lessons:[],gradeEvents:[],...d});setReady(true);},[]);
+      useEffect(()=>{
+        if(!ready)return;
+        saveData(data);
+        if(dataLoadedRef.current){
+          if(skipChangeRef.current){skipChangeRef.current=false;}
+          else setMeta(m=>{const u={...m,lastDataChangeDate:new Date().toISOString()};saveMeta(u);return u;});
+        } else { dataLoadedRef.current=true; }
+      },[data,ready]);
+
+      function handleExport(){
+        exportJSON(data);
+        const today=todayISO();
+        setMeta(m=>{const u={...m,lastBackupDate:today};saveMeta(u);return u;});
+      }
+
+      const [syncState,setSyncState]=useState(null);
+      async function triggerSync(){
+        if(!auth.githubToken||!meta.gistId||syncState==='syncing')return;
+        setSyncState('syncing');
+        const FILENAME='gradebook.json', token=auth.githubToken;
+        let result='ok';
+        try{
+          const gist=await githubAPI('GET','/gists/'+meta.gistId,token);
+          const gistDate=gist.updated_at;
+          const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate>meta.lastSyncDate;
+          const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
+          if(localNewer&&gistNewer){result='conflict';}
+          else if(localNewer){
+            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}});
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
+          }else if(gistNewer){
+            const content=gist.files[FILENAME]?.content;
+            if(!content)throw new Error('no content');
+            const remote=JSON.parse(content);
+            setData({classes:[],lessons:[],gradeEvents:[],...remote});
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
+          }else{
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString()};saveMeta(u);return u;});
+          }
+        }catch(e){result='error';}
+        setSyncState(result);
+        if(result!=='conflict')setTimeout(()=>setSyncState(null),3000);
+      }
+
+      const push=(s,p={})=>setNav(n=>[...n,{screen:s,params:p}]);
+      const pop=()=>setNav(n=>n.length>1?n.slice(0,-1):n);
+      const replace=(s,p={})=>setNav(n=>[...n.slice(0,-1),{screen:s,params:p}]);
+      const goHome=()=>setNav([{screen:'home',params:{}}]);
+      const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
+
+      if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
+      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,params:cur.params};
+      return(<div style={{maxWidth:540,margin:'0 auto',background:'#F2F2F7',minHeight:'100vh'}}>
+        {cur.screen==='home'          &&<HomeScreen          {...sp}/>}
+        {cur.screen==='settings'      &&<SettingsScreen      {...sp}/>}
+        {cur.screen==='class'         &&<ClassScreen         {...sp}/>}
+        {cur.screen==='classSettings' &&<ClassSettingsScreen {...sp}/>}
+        {cur.screen==='student'       &&<StudentScreen       {...sp}/>}
+        {cur.screen==='lesson'        &&<LessonScreen        {...sp}/>}
+        {cur.screen==='addGrade'      &&<AddGradeScreen      {...sp}/>}
+        {cur.screen==='gradeEvent'    &&<GradeEventScreen    {...sp}/>}
+      </div>);
+    }
+
+    // ── Home ───────────────────────────────────────────────────────────────────
+    function HomeScreen({data,setData,push,meta,auth,triggerSync,syncState,handleExport}){
+      const [show,setShow]=useState(false);
+      const [name,setName]=useState('');
+      const [stxt,setStxt]=useState('');
+
+      function addCls(){if(!name.trim())return;const students=stxt.split('\n').map(l=>l.trim()).filter(Boolean).map(n=>({id:uid(),name:n}));setData(d=>({...d,classes:[...d.classes,{id:uid(),name:name.trim(),students}]}));setName('');setStxt('');setShow(false);}
+      function cancel(){setShow(false);setName('');setStxt('');}
+
+      const due=backupDue(meta);
+      const daysSince=meta.lastBackupDate?daysBetween(meta.lastBackupDate,todayISO()):null;
+
+      return(<div>
+        <Bar title="Gradebook" right={[
+          <BarBtn key="settings" onClick={()=>push('settings',{})} label="Settings"><SettingsIcon size={16} color="white"/></BarBtn>,
+          <SyncBtn key="sync" auth={auth} meta={meta} syncState={syncState} triggerSync={triggerSync}/>,
+        ]}/>
+        <div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+
+          {due&&<div style={{padding:'12px 14px',background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:10,display:'flex',alignItems:'center',gap:10}}>
+            <div style={{flex:1}}>
+              <p style={{fontSize:13,fontWeight:500,color:'#633806',marginBottom:2}}>Backup reminder</p>
+              <p style={{fontSize:12,color:'#633806'}}>{daysSince!=null?`Last backup ${daysSince===0?'today':`${daysSince} day${daysSince!==1?'s':''} ago`}`:'No backup yet'} — data has changed since then.</p>
+            </div>
+            <button onClick={handleExport} style={{padding:'7px 12px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500,whiteSpace:'nowrap',flexShrink:0}}>Back up now</button>
+          </div>}
+
+          {data.classes.length===0&&!show&&(<div style={{textAlign:'center',padding:'48px 24px'}}>
+            <div style={{fontSize:40,marginBottom:16}}>📚</div>
+            <p style={{margin:'0 0 6px',fontWeight:500,fontSize:15}}>No classes yet</p>
+            <p style={{margin:'0 0 20px',fontSize:13,color:'#666'}}>Add your first class to get started.</p>
+            <button onClick={()=>setShow(true)} style={{background:PURPLE,color:'white',border:'none',borderRadius:8,padding:'11px 28px',fontSize:14,fontWeight:500,cursor:'pointer'}}>Add first class</button>
+          </div>)}
+          {data.classes.length>0&&(<Card>
+            {data.classes.map((cls,i)=>(<div key={cls.id}>{i>0&&<Divider/>}
+              <div onClick={()=>push('class',{classId:cls.id})} style={{padding:'13px 16px',display:'flex',alignItems:'center',cursor:'pointer',gap:12}}>
+                <div style={{width:10,height:10,borderRadius:'50%',background:getCC(cls),flexShrink:0}}/>
+                <div style={{flex:1}}><div style={{fontSize:14,fontWeight:500}}>{cls.name}</div><div style={{fontSize:12,color:'#666',marginTop:2}}>{cls.students.length} student{cls.students.length!==1?'s':''}</div></div>
+                <ChevronRight size={16} color="#999"/>
+              </div>
+            </div>))}
+            {!show&&(<><Divider/><button onClick={()=>setShow(true)} style={{width:'100%',padding:'12px 16px',background:'none',border:'none',color:PURPLE,fontSize:14,cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',gap:8}}><Plus size={15} color={PURPLE}/> Add class</button></>)}
+          </Card>)}
+          {show&&(<Card><div style={{padding:16,display:'flex',flexDirection:'column',gap:14}}>
+            <div style={{display:'flex',alignItems:'center'}}>
+              <span style={{flex:1,fontSize:15,fontWeight:500}}>New class</span>
+              <button onClick={cancel} style={{background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',padding:4}}><XIcon size={18} color="#999"/></button>
+            </div>
+            <FI label="Class name" placeholder="e.g. 4A · English" value={name} onChange={e=>setName(e.target.value)}/>
+            <FI label="Students" hint="One name per line — e.g. Berger, Anna" placeholder={"Berger, Anna\nFischer, Lukas\nGruber, Marie"} value={stxt} onChange={e=>setStxt(e.target.value)} rows={8}/>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={cancel} style={{flex:1,padding:'11px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:8,fontSize:14,cursor:'pointer',color:'#666'}}>Cancel</button>
+              <button onClick={addCls} disabled={!name.trim()} style={{flex:2,padding:'11px',background:name.trim()?PURPLE:'#E8E8EE',color:name.trim()?'white':'#AAA',border:'none',borderRadius:8,fontSize:14,fontWeight:500,cursor:name.trim()?'pointer':'default'}}>Save class</button>
+            </div>
+          </div></Card>)}
+        </div>
+      </div>);
+    }
+
+    // ── Settings ───────────────────────────────────────────────────────────────
+    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState}){
+      const [pendingImport,setPendingImport]=useState(null);
+      const [importError,setImportError]=useState('');
+      const [newYear,setNewYear]=useState(false);
+      const [tokenInput,setTokenInput]=useState('');
+      const [gistIdInput,setGistIdInput]=useState('');
+      const [syncStatus,setSyncStatus]=useState(null);
+      const [syncMsg,setSyncMsg]=useState('');
+
+      function handleFileSelect(e){
+        const file=e.target.files?.[0];if(!file)return;e.target.value='';
+        const reader=new FileReader();
+        reader.onload=ev=>{try{
+          const raw=JSON.parse(ev.target.result);
+          if(!Array.isArray(raw.classes)){setImportError('Not a valid Gradebook backup file.');return;}
+          const d={classes:[],lessons:[],gradeEvents:[],...raw};
+          if(!Array.isArray(d.lessons)&&d.attendance){
+            const lessons=[];Object.entries(d.attendance||{}).forEach(([classId,dates])=>{Object.entries(dates||{}).forEach(([date,students])=>{const ns={};Object.entries(students||{}).forEach(([sid,val])=>{if(val===false)ns[sid]={absent:true,participation:null};else if(val&&typeof val==='object'&&'absent' in val)ns[sid]=val;});lessons.push({id:uid(),classId,date,createdAt:0,students:ns});});});d.lessons=lessons;delete d.attendance;
+          }
+          setPendingImport({data:d,name:file.name});setImportError('');
+        }catch{setImportError('Could not read the file — is it a valid JSON export?');}};
+        reader.readAsText(file);
+      }
+      function confirmImport(){if(!pendingImport)return;replaceData(pendingImport.data);setPendingImport(null);}
+      function exportAndReset(){
+        handleExport();
+        replaceData({classes:data.classes.map(c=>({...c})),lessons:[],gradeEvents:[],semesterCutoff:null});
+        setMeta(m=>{const u={...m,lastDataChangeDate:null};saveMeta(u);return u;});
+        setNewYear(false);goHome();
+      }
+      function saveToken(){if(!tokenInput.trim())return;saveAuthState({...auth,githubToken:tokenInput.trim()});setTokenInput('');}
+
+      // Extract a bare Gist ID from either a raw ID or a URL
+      function extractGistId(input){
+        const s=input.trim();
+        if(/^[a-f0-9]{20,}$/i.test(s))return s;
+        const m=s.match(/gist\.github\.com\/[^/]+\/([a-f0-9]{20,})/i);
+        return m?m[1]:null;
+      }
+      function connectGist(){
+        const id=extractGistId(gistIdInput);
+        if(!id){setSyncStatus('error');setSyncMsg('Invalid Gist ID or URL — paste the full ID or the Gist URL.');return;}
+        setMeta(m=>{const u={...m,gistId:id,lastSyncDate:null,gistUpdatedAt:null};saveMeta(u);return u;});
+        setGistIdInput('');setSyncStatus(null);setSyncMsg('');
+      }
+      function disconnectGist(){
+        setMeta(m=>{const u={...m,gistId:null,lastSyncDate:null,gistUpdatedAt:null};saveMeta(u);return u;});
+        setSyncStatus(null);setSyncMsg('');
+      }
+
+      async function doSync(forcePush=false,forcePull=false){
+        setSyncStatus('syncing');setSyncMsg('Checking…');
+        const FILENAME='gradebook.json';
+        const token=auth.githubToken;
+        try{
+          if(!meta.gistId){
+            setSyncMsg('Creating private Gist…');
+            const gist=await githubAPI('POST','/gists',token,{
+              description:'Gradebook sync',public:false,
+              files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}
+            });
+            setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
+            setSyncStatus('success');setSyncMsg('Gist created. Copy the Gist ID below to connect your other devices.');
+            return;
+          }
+          setSyncMsg('Fetching Gist…');
+          const gist=await githubAPI('GET','/gists/'+meta.gistId,token);
+          const gistDate=gist.updated_at; // full ISO timestamp for same-day accuracy
+          let dir;
+          if(forcePush) dir='push';
+          else if(forcePull) dir='pull';
+          else{
+            const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate>meta.lastSyncDate;
+            const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
+            if(localNewer&&gistNewer) dir='conflict';
+            else if(localNewer) dir='push';
+            else if(gistNewer) dir='pull';
+            else dir='uptodate';
+          }
+          if(dir==='uptodate'){
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString()};saveMeta(u);return u;});
+            setSyncStatus('success');setSyncMsg('Already up to date.');return;
+          }
+          if(dir==='conflict'){setSyncStatus('conflict');setSyncMsg('');return;}
+          if(dir==='push'){
+            setSyncMsg('Uploading…');
+            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}});
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
+            setSyncStatus('success');setSyncMsg('Local data uploaded to Gist.');return;
+          }
+          if(dir==='pull'){
+            setSyncMsg('Downloading…');
+            const content=gist.files[FILENAME]?.content;
+            if(!content)throw new Error('Gradebook file not found in Gist.');
+            const remote=JSON.parse(content);
+            replaceData({classes:[],lessons:[],gradeEvents:[],...remote});
+            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
+            setSyncStatus('success');setSyncMsg('Gist data downloaded and applied.');return;
+          }
+        }catch(err){
+          setSyncStatus('error');setSyncMsg(err.message||'Sync failed. Check your connection and token.');
+        }
+      }
+
+      const daysSince=meta.lastBackupDate?daysBetween(meta.lastBackupDate,todayISO()):null;
+      function fmtTimestamp(ts){
+        if(!ts)return'Never';
+        const d=new Date(ts),p=n=>String(n).padStart(2,'0');
+        return `${p(d.getDate())}/${p(d.getMonth()+1)}/${String(d.getFullYear()).slice(2)} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      }
+      function daysLabel(n){if(n==null)return'Never';if(n===0)return'Today';return n+' day'+(n!==1?'s':'')+' ago';}
+
+      return(<div>
+        <Bar title="Settings" onBack={pop}/>
+        <div style={{padding:16,display:'flex',flexDirection:'column',gap:16}}>
+
+          {/* ── Gist sync ── */}
+          <div>
+            <SectionLabel title="Gist sync"/>
+            <Card>
+              {/* Token */}
+              <div style={{padding:'12px 16px'}}>
+                <div style={{fontSize:13,color:'#1C1C1E',marginBottom:4}}>GitHub Personal Access Token</div>
+                <div style={{fontSize:12,color:'#999',marginBottom:10}}>Needs <span style={{fontFamily:'monospace',fontSize:11,background:'#F2F2F7',padding:'1px 5px',borderRadius:3}}>gist</span> scope · stored locally, never exported</div>
+                {auth.githubToken
+                  ?<div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{flex:1,padding:'8px 12px',background:'#F2F2F7',borderRadius:7,fontSize:13,color:'#888'}}>Token saved ●●●●●●</div>
+                    <button onClick={()=>{saveAuthState({...auth,githubToken:null});setSyncStatus(null);setSyncMsg('');}} style={{padding:'7px 12px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#A32D2D',cursor:'pointer'}}>Clear</button>
+                  </div>
+                  :<div style={{display:'flex',gap:8}}>
+                    <input type="password" value={tokenInput} onChange={e=>setTokenInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&saveToken()} placeholder="ghp_…" style={{flex:1,padding:'8px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:13,background:'white',color:'#1C1C1E',fontFamily:'inherit'}}/>
+                    <button onClick={saveToken} disabled={!tokenInput.trim()} style={{padding:'7px 14px',background:tokenInput.trim()?PURPLE:'#E8E8EE',color:tokenInput.trim()?'white':'#AAA',border:'none',borderRadius:7,fontSize:13,cursor:tokenInput.trim()?'pointer':'default'}}>Save</button>
+                  </div>
+                }
+              </div>
+
+              {auth.githubToken&&!meta.gistId&&<>
+                <Divider/>
+                <div style={{padding:'12px 16px',display:'flex',flexDirection:'column',gap:10}}>
+                  <button onClick={()=>doSync()} disabled={syncStatus==='syncing'} style={{width:'100%',padding:'11px',background:syncStatus==='syncing'?'#E8E8EE':PURPLE,color:syncStatus==='syncing'?'#AAA':'white',border:'none',borderRadius:8,fontSize:14,fontWeight:500,cursor:syncStatus==='syncing'?'default':'pointer'}}>
+                    {syncStatus==='syncing'?(syncMsg||'Syncing…'):'Sync now — creates a new private Gist'}
+                  </button>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{flex:1,height:'0.5px',background:'#E0E0E5'}}/>
+                    <span style={{fontSize:12,color:'#999'}}>or connect to an existing Gist</span>
+                    <div style={{flex:1,height:'0.5px',background:'#E0E0E5'}}/>
+                  </div>
+                  <div style={{display:'flex',gap:8}}>
+                    <input value={gistIdInput} onChange={e=>setGistIdInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&connectGist()} placeholder="Paste Gist ID or URL…" style={{flex:1,padding:'8px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:13,background:'white',color:'#1C1C1E',fontFamily:'inherit'}}/>
+                    <button onClick={connectGist} disabled={!gistIdInput.trim()} style={{padding:'7px 14px',background:gistIdInput.trim()?PURPLE:'#E8E8EE',color:gistIdInput.trim()?'white':'#AAA',border:'none',borderRadius:7,fontSize:13,cursor:gistIdInput.trim()?'pointer':'default'}}>Connect</button>
+                  </div>
+                </div>
+              </>}
+
+              {auth.githubToken&&meta.gistId&&<>
+                <Divider/>
+                <div style={{padding:'12px 16px',display:'flex',flexDirection:'column',gap:5}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:12,color:'#666',flexShrink:0}}>Last synced</span>
+                    <span style={{fontSize:11,color:'#1C1C1E',fontFamily:'monospace',textAlign:'right'}}>{fmtTimestamp(meta.lastSyncDate)}</span>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
+                    <span style={{fontSize:12,color:'#666',flexShrink:0}}>Local last changed</span>
+                    <span style={{fontSize:11,color:'#1C1C1E',fontFamily:'monospace',textAlign:'right'}}>{fmtTimestamp(meta.lastDataChangeDate)}</span>
+                  </div>
+                </div>
+                <Divider/>
+                {/* Gist ID — selectable for copying to other devices */}
+                <div style={{padding:'10px 16px'}}>
+                  <div style={{fontSize:12,color:'#666',marginBottom:5}}>Gist ID — copy this to connect other devices</div>
+                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                    <input readOnly value={meta.gistId} onClick={e=>e.target.select()}
+                      style={{flex:1,padding:'7px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:11,background:'#F2F2F7',color:'#555',fontFamily:'monospace',cursor:'text'}}/>
+                    <button onClick={disconnectGist} style={{padding:'7px 10px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:12,color:'#A32D2D',cursor:'pointer',whiteSpace:'nowrap'}}>Disconnect</button>
+                  </div>
+                </div>
+                <Divider/>
+                <div style={{padding:'12px 16px',display:'flex',flexDirection:'column',gap:8}}>
+                  <button onClick={()=>doSync()} disabled={syncStatus==='syncing'} style={{width:'100%',padding:'11px',background:syncStatus==='syncing'?'#E8E8EE':PURPLE,color:syncStatus==='syncing'?'#AAA':'white',border:'none',borderRadius:8,fontSize:14,fontWeight:500,cursor:syncStatus==='syncing'?'default':'pointer'}}>
+                    {syncStatus==='syncing'?(syncMsg||'Syncing…'):'Sync now'}
+                  </button>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={()=>doSync(true,false)} disabled={syncStatus==='syncing'} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#666',cursor:'pointer'}}>↑ Force push</button>
+                    <button onClick={()=>doSync(false,true)} disabled={syncStatus==='syncing'} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#666',cursor:'pointer'}}>↓ Force pull</button>
+                  </div>
+                </div>
+              </>}
+            </Card>
+
+            {syncStatus==='success'&&<div style={{marginTop:8,padding:'10px 14px',background:'#EAF3DE',border:'0.5px solid #C0DD97',borderRadius:8}}>
+              <p style={{fontSize:13,color:'#27500A'}}>✓ {syncMsg}</p>
+            </div>}
+            {syncStatus==='error'&&<div style={{marginTop:8,padding:'10px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:8}}>
+              <p style={{fontSize:13,color:'#791F1F'}}>{syncMsg}</p>
+            </div>}
+            {syncStatus==='conflict'&&<div style={{marginTop:8,padding:'12px 14px',background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:10}}>
+              <p style={{fontSize:13,fontWeight:500,color:'#633806',marginBottom:4}}>⚠ Sync conflict</p>
+              <p style={{fontSize:12,color:'#633806',marginBottom:10}}>Both your local data and the Gist have changed since the last sync. Choose which to keep.</p>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>doSync(true,false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #FAC775',borderRadius:7,fontSize:13,color:'#633806',cursor:'pointer',fontWeight:500}}>Keep local</button>
+                <button onClick={()=>doSync(false,true)} style={{flex:1,padding:'9px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Keep Gist</button>
+              </div>
+            </div>}
+          </div>
+
+          {/* ── Data & backup ── */}
+          <div>
+            <SectionLabel title="Data & backup"/>
+            <Card>
+              <div style={{padding:'12px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <span style={{fontSize:13,color:'#1C1C1E'}}>Last backup</span>
+                <span style={{fontSize:13,color:'#666'}}>{daysLabel(daysSince)}</span>
+              </div>
+              <Divider/>
+              <div style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+                <span style={{fontSize:13,color:'#1C1C1E',flex:1}}>Reminder interval</span>
+                <div style={{display:'flex',alignItems:'center',gap:6}}>
+                  <input type="number" min="1" max="365" value={meta.backupReminderDays||7}
+                    onChange={e=>{const v=Math.max(1,Math.min(365,parseInt(e.target.value)||7));setMeta(m=>{const u={...m,backupReminderDays:v};saveMeta(u);return u;});}}
+                    style={{width:52,padding:'5px 7px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,textAlign:'right',background:'white',color:'#1C1C1E',fontFamily:'inherit'}}/>
+                  <span style={{fontSize:12,color:'#666'}}>days</span>
+                </div>
+              </div>
+              <Divider/>
+              <button onClick={()=>exportCSV(data)} style={{width:'100%',padding:'12px 16px',background:'none',border:'none',color:PURPLE,fontSize:14,cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',gap:8}}><Download size={15} color={PURPLE}/> Export CSV</button>
+              <Divider/>
+              <button onClick={handleExport} style={{width:'100%',padding:'12px 16px',background:'none',border:'none',color:PURPLE,fontSize:14,cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',gap:8}}><Download size={15} color={PURPLE}/> Export JSON backup</button>
+              <Divider/>
+              <label style={{width:'100%',padding:'12px 16px',display:'flex',alignItems:'center',gap:8,cursor:'pointer',color:PURPLE,fontSize:14}}>
+                <UploadIcon size={15} color={PURPLE}/> Import JSON
+                <input type="file" accept=".json" style={{display:'none'}} onChange={handleFileSelect}/>
+              </label>
+            </Card>
+            {importError&&<div style={{marginTop:8,padding:'10px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:8}}><p style={{fontSize:13,color:'#791F1F'}}>{importError}</p></div>}
+            {pendingImport&&<div style={{marginTop:8,background:'#FAEEDA',border:'0.5px solid #FAC775',borderRadius:10,padding:'12px 14px'}}>
+              <p style={{fontSize:13,color:'#633806',fontWeight:500,marginBottom:4}}>Import "{pendingImport.name}"?</p>
+              <p style={{fontSize:12,color:'#633806',marginBottom:10}}>This will replace all current data on this device.</p>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>setPendingImport(null)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #FAC775',borderRadius:7,fontSize:13,color:'#633806',cursor:'pointer'}}>Cancel</button>
+                <button onClick={confirmImport} style={{flex:1,padding:'9px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Import & replace</button>
+              </div>
+            </div>}
+          </div>
+
+          {/* ── Semester ── */}
+          <div>
+            <SectionLabel title="Semester"/>
+            <Card>
+              <div style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13,color:'#1C1C1E'}}>End of Semester 1</div>
+                  <div style={{fontSize:12,color:'#999',marginTop:2}}>Unlocks semester filter on class and student screens</div>
+                </div>
+                <input type="date" value={data.semesterCutoff||''} onChange={e=>setData(d=>({...d,semesterCutoff:e.target.value||null}))} style={{padding:'6px 8px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:13,color:'#1C1C1E',background:'white',fontFamily:'inherit'}}/>
+              </div>
+            </Card>
+          </div>
+
+          {/* ── New school year ── */}
+          <div>
+            <SectionLabel title="New school year"/>
+            {!newYear
+              ?<Card><div style={{padding:'14px 16px'}}>
+                <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Keeps your classes and students. Clears all lessons, grades, and the semester cutoff. A backup is exported automatically before the reset.</p>
+                <button onClick={()=>setNewYear(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Start new school year…</button>
+              </div></Card>
+              :<div style={{background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10,padding:'12px 14px'}}>
+                <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Export backup, then reset?</p>
+                <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>A JSON backup will download automatically, then all grades, lessons, and the semester cutoff will be cleared.</p>
+                <div style={{display:'flex',gap:8}}>
+                  <button onClick={()=>setNewYear(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+                  <button onClick={exportAndReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Export & reset</button>
+                </div>
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>);
+    }
+
+    // ── Grade event row ────────────────────────────────────────────────────────
+    function GradeEventRow({ev,cls,onTap}){
+      const isHW=ev.type==='Homework';
+      let summary;
+      if(isHW){
+        const done=cls.students.filter(s=>ev.completions?.[s.id]==='done').length;
+        const part=cls.students.filter(s=>ev.completions?.[s.id]==='partial').length;
+        const none=cls.students.filter(s=>ev.completions?.[s.id]==='not_done').length;
+        summary=<div style={{display:'flex',gap:6,flexWrap:'wrap'}}><span style={{fontSize:12,background:CS.done.bg,color:CS.done.fg,padding:'2px 8px',borderRadius:4}}>{done} done</span>{part>0&&<span style={{fontSize:12,background:CS.partial.bg,color:CS.partial.fg,padding:'2px 8px',borderRadius:4}}>{part} partial</span>}{none>0&&<span style={{fontSize:12,background:CS.not_done.bg,color:CS.not_done.fg,padding:'2px 8px',borderRadius:4}}>{none} not done</span>}</div>;
+      } else {
+        const scores=Object.values(ev.scores||{}).filter(g=>g!=null);
+        const dist=[1,2,3,4,5].map(g=>({g,n:scores.filter(x=>x===g).length})).filter(x=>x.n>0);
+        summary=dist.length>0?<div style={{display:'flex',gap:4,flexWrap:'wrap'}}>{dist.map(({g,n})=><span key={g} style={{fontSize:12,background:GS[g].bg,color:GS[g].fg,padding:'2px 8px',borderRadius:4,fontWeight:500}}>{g} ×{n}</span>)}</div>:null;
+      }
+      return(<div onClick={onTap} style={{padding:'12px 16px',cursor:'pointer'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+          <span style={{fontSize:14,fontWeight:500,flex:1}}>{ev.name}</span>
+          {isHW&&<WeightBadge weight={ev.weight}/>}
+          <span style={{fontSize:11,background:TS[ev.type]?.bg,color:TS[ev.type]?.fg,padding:'2px 8px',borderRadius:4}}>{ev.type}</span>
+          <ChevronRight size={14} color="#999"/>
+        </div>
+        <div style={{fontSize:12,color:'#666',marginBottom:summary?6:0}}>{fmtDate(ev.date)}</div>
+        {summary}
+      </div>);
+    }
+
+    // ── Class ──────────────────────────────────────────────────────────────────
+    function ClassScreen({data,setData,push,pop,pushWithState,auth,meta,triggerSync,syncState,params}){
+      const cls=data.classes.find(c=>c.id===params.classId);
+      const [tab,setTab]=useState(params.tab||'Participation');
+      const [showNew,setShowNew]=useState(false);
+      const [newDate,setNewDate]=useState(todayISO());
+      const [gradeSort,setGradeSort]=useState('type');
+      const [semFilter,setSemFilter]=useState('all');
+      if(!cls)return null;
+      const clsColor=getCC(cls);
+      const cutoff=data.semesterCutoff||null;
+
+      const clsLessons=[...(data.lessons||[])].filter(l=>l.classId===cls.id).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+      const byDate={};[...clsLessons].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0)).forEach(l=>{if(!byDate[l.date])byDate[l.date]=[];byDate[l.date].push(l.id);});
+      const lessonTitle=l=>{const g=byDate[l.date]||[];return g.length<=1?fmtDate(l.date):`${fmtDate(l.date)} · Lesson ${g.indexOf(l.id)+1}`;};
+      const weekGroups=[];const seenWk={};
+      clsLessons.forEach(l=>{const ws=weekStart(l.date);if(!seenWk[ws]){seenWk[ws]=[];weekGroups.push({ws,lessons:seenWk[ws]});}seenWk[ws].push(l);});
+
+      function openNewLesson(){if(!newDate)return;const lesson={id:uid(),classId:cls.id,date:newDate,createdAt:Date.now(),students:{}};setData(d=>({...d,lessons:[...(d.lessons||[]),lesson]}));setShowNew(false);setNewDate(todayISO());pushWithState('lesson',{lessonId:lesson.id},{tab});}
+      const go=(screen,p)=>pushWithState(screen,p,{tab});
+      const grEvts=(data.gradeEvents||[]).filter(e=>e.classId===cls.id).sort((a,b)=>b.date.localeCompare(a.date));
+      const sortedStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+
+      return(<div>
+        <Bar title={cls.name} onBack={pop} color={clsColor} right={[
+            <BarBtn key="cs" onClick={()=>go('classSettings',{classId:cls.id})} label="Class settings"><EditIcon size={15} color="white"/></BarBtn>,
+            <SyncBtn key="sync" auth={auth} meta={meta} syncState={syncState} triggerSync={triggerSync}/>,
+          ]}/>
+        <TabBar tabs={['Participation','Grades','Students']} active={tab} onChange={setTab}/>
+
+        {tab==='Participation'&&(<div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+          {!showNew?<PBtn label="+ New lesson" onClick={()=>setShowNew(true)}/>
+            :<Card><div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+              <div style={{display:'flex',alignItems:'center'}}><span style={{flex:1,fontSize:15,fontWeight:500}}>New lesson</span><button onClick={()=>{setShowNew(false);setNewDate(todayISO());}} style={{background:'none',border:'none',cursor:'pointer',display:'flex',alignItems:'center',padding:4}}><XIcon size={18} color="#999"/></button></div>
+              <FI label="Date" type="date" value={newDate} onChange={e=>setNewDate(e.target.value)}/>
+              <PBtn label="Open lesson →" onClick={openNewLesson} disabled={!newDate}/>
+            </div></Card>}
+          {weekGroups.length===0?<p style={{textAlign:'center',padding:'32px 0',margin:0,fontSize:13,color:'#999'}}>No lessons recorded yet.</p>
+            :weekGroups.map(({ws,lessons:wl})=>(<div key={ws}>
+              <SectionLabel title={`Week of ${fmtShort(ws)}`}/>
+              <Card>{wl.map((lesson,i)=>{
+                const absent=cls.students.filter(s=>lesson.students[s.id]?.absent===true).length;
+                const present=cls.students.length-absent;
+                const graded=cls.students.filter(s=>!lesson.students[s.id]?.absent&&lesson.students[s.id]?.participation!=null).length;
+                return(<div key={lesson.id}>{i>0&&<Divider/>}
+                  <div onClick={()=>go('lesson',{lessonId:lesson.id})} style={{padding:'12px 16px',cursor:'pointer',display:'flex',alignItems:'center',gap:12}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:500,marginBottom:5}}>{lessonTitle(lesson)}</div>
+                      <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                        <span style={{fontSize:12,background:'#F1EFE8',color:'#444441',padding:'2px 8px',borderRadius:4}}>{present} present</span>
+                        {absent>0&&<span style={{fontSize:12,background:'#F1EFE8',color:'#444441',padding:'2px 8px',borderRadius:4}}>{absent} absent</span>}
+                        <span style={{fontSize:12,background:graded===present?'#EAF3DE':'#FCEBEB',color:graded===present?'#27500A':'#791F1F',padding:'2px 8px',borderRadius:4}}>{graded}/{present} graded</span>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} color="#999"/>
+                  </div>
+                </div>);
+              })}</Card>
+            </div>))
+          }
+        </div>)}
+
+        {tab==='Grades'&&(<div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+          <PBtn label="+ Add grade event" onClick={()=>go('addGrade',{classId:cls.id})}/>
+          {grEvts.length>0&&<SegCtrl options={[['type','By type'],['chrono','Newest first']]} value={gradeSort} onChange={setGradeSort}/>}
+          {grEvts.length===0?<p style={{textAlign:'center',padding:'32px 0',margin:0,fontSize:13,color:'#999'}}>No grades recorded yet.</p>
+            :gradeSort==='chrono'
+              ?<Card>{grEvts.map((ev,i)=><div key={ev.id}>{i>0&&<Divider/>}<GradeEventRow ev={ev} cls={cls} onTap={()=>go('gradeEvent',{classId:cls.id,eventId:ev.id})}/></div>)}</Card>
+              :TYPE_ORDER.map(type=>{const evs=grEvts.filter(e=>e.type===type);if(!evs.length)return null;return(<div key={type}><SectionLabel title={TYPE_PLURAL[type]}/><Card>{evs.map((ev,i)=><div key={ev.id}>{i>0&&<Divider/>}<GradeEventRow ev={ev} cls={cls} onTap={()=>go('gradeEvent',{classId:cls.id,eventId:ev.id})}/></div>)}</Card></div>);})
+          }
+        </div>)}
+
+        {tab==='Students'&&(<div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+          {cutoff&&<SegCtrl options={[['all','All'],['s1','Semester 1'],['s2','Semester 2']]} value={semFilter} onChange={setSemFilter}/>}
+          {sortedStudents.length===0?<p style={{textAlign:'center',padding:'32px 0',margin:0,fontSize:13,color:'#999'}}>No students yet.</p>
+            :<Card>{sortedStudents.map((s,i)=>{
+              const pGr=(data.lessons||[]).filter(l=>l.classId===cls.id&&!l.students[s.id]?.absent&&l.students[s.id]?.participation!=null&&inSem(l.date,semFilter,cutoff)).map(l=>l.students[s.id].participation);
+              const etGr=(data.gradeEvents||[]).filter(ev=>ev.classId===cls.id&&ev.type!=='Homework'&&ev.scores?.[s.id]!=null&&inSem(ev.date,semFilter,cutoff)).map(ev=>ev.scores[s.id]);
+              const pAvg=avg(pGr),etAvg=avg(etGr),hwSt=hwStatsForStudent(data,cls.id,s.id,{semFilter,cutoff});
+              const {finalGrade:fg,finalRounded:fgR}=computeGrade(data,cls.id,s.id,{semFilter,cutoff});
+              return(<div key={s.id}>{i>0&&<Divider/>}
+                <div onClick={()=>go('student',{classId:cls.id,studentId:s.id})} style={{padding:'12px 16px',display:'flex',alignItems:'center',cursor:'pointer',gap:12}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:500,color:'#1C1C1E'}}>{s.name}</div>
+                    <div style={{fontSize:12,color:'#999',marginTop:2}}>P: {pAvg!=null?fmtAvg(pAvg):'—'} · HW: {hwSt?hwSt.grade:'—'} · Grades: {etAvg!=null?fmtAvg(etAvg):'—'}</div>
+                    {fg!=null&&<div style={{fontSize:12,color:PURPLE,marginTop:1,fontWeight:500}}>Final: {fgR} <span style={{color:'#AAA',fontWeight:400}}>({fg.toFixed(2)})</span></div>}
+                  </div>
+                  <ChevronRight size={16} color="#999"/>
+                </div>
+              </div>);
+            })}</Card>
+          }
+        </div>)}
+      </div>);
+    }
+
+    // ── Class Settings (with weights + lock) ───────────────────────────────────
+    function ClassSettingsScreen({data,setData,pop,goHome,params}){
+      const {classId}=params;
+      const cls=data.classes.find(c=>c.id===classId);
+      const [cname,setCname]=useState(cls?.name||'');
+      const [dirty,setDirty]=useState(false);
+      const [newSt,setNewSt]=useState('');
+      const [confirmDel,setConfirmDel]=useState(false);
+      const [confirmRem,setConfirmRem]=useState(null);
+      const [locked,setLocked]=useState(true); // always start locked
+      if(!cls)return null;
+
+      const w=getWeights(cls);
+
+      function saveName(){if(!cname.trim())return;setData(d=>({...d,classes:d.classes.map(c=>c.id===classId?{...c,name:cname.trim()}:c)}));setDirty(false);}
+      function addStudent(){if(!newSt.trim())return;setData(d=>({...d,classes:d.classes.map(c=>c.id===classId?{...c,students:[...c.students,{id:uid(),name:newSt.trim()}]}:c)}));setNewSt('');}
+      function removeStudent(sid){setData(d=>{const nc=d.classes.map(c=>c.id===classId?{...c,students:c.students.filter(s=>s.id!==sid)}:c);const nl=(d.lessons||[]).map(l=>{if(l.classId!==classId)return l;const ns={...l.students};delete ns[sid];return{...l,students:ns};});const ng=(d.gradeEvents||[]).map(ev=>{if(ev.classId!==classId)return ev;if(ev.type==='Homework'){const nc={...ev.completions};delete nc[sid];return{...ev,completions:nc};}const ns={...ev.scores};delete ns[sid];return{...ev,scores:ns};});return{...d,classes:nc,lessons:nl,gradeEvents:ng};});setConfirmRem(null);}
+      function deleteClass(){setData(d=>({...d,classes:d.classes.filter(c=>c.id!==classId),lessons:(d.lessons||[]).filter(l=>l.classId!==classId),gradeEvents:(d.gradeEvents||[]).filter(e=>e.classId!==classId)}));goHome();}
+      function setClassColor(color){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,color})}));}
+      function setThreshold(i,val){
+        if(locked)return;
+        const t=[...(cls.thresholds||DEFAULT_THRESHOLDS)];
+        t[i]=Math.round(val*100)/100;
+        for(let j=0;j<3;j++){if(t[j]>=t[j+1])t[j+1]=Math.round((t[j]+0.05)*100)/100;}
+        setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,thresholds:t})}));
+      }
+
+      function setW1(key,val){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,weights:{...getWeights(c),step1:{...getWeights(c).step1,[key]:val}}})}));}
+      function setW2(key,val){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,weights:{...getWeights(c),step2:{...getWeights(c).step2,[key]:val}}})}));}
+
+      const sorted=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+
+      return(<div>
+        <Bar title="Class settings" onBack={pop} color={getCC(cls)} right={
+          <BarBtn onClick={()=>setLocked(l=>!l)} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>
+        }/>
+        {locked&&<LockedBanner/>}
+
+        <div style={{padding:16,display:'flex',flexDirection:'column',gap:16,marginTop:locked?8:0}}>
+
+          {/* Class name */}
+          <Card><div style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
+            <FI label="Class name" value={cname} onChange={e=>{if(!locked){setCname(e.target.value);setDirty(true);}}} disabled={locked}/>
+            {dirty&&cname.trim()&&!locked&&<PBtn label="Save name" onClick={saveName}/>}
+            <div>
+              <label style={{fontSize:12,color:'#666',display:'block',marginBottom:8}}>Colour</label>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                {CLASS_COLORS.map(c=><button key={c} onClick={()=>setClassColor(c)}
+                  style={{width:28,height:28,borderRadius:'50%',background:c,border:(cls.color||PURPLE)===c?'3px solid rgba(0,0,0,0.25)':'2px solid transparent',cursor:locked?'default':'pointer',transform:(cls.color||PURPLE)===c?'scale(1.18)':'scale(1)',transition:'transform 0.1s',outline:'none'}}/> )}
+              </div>
+            </div>
+          </div></Card>
+
+          {/* Step 1 weights */}
+          <Card><div style={{padding:16}}>
+            <p style={{fontSize:11,fontWeight:500,color:'#999',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:14}}>Step 1 — Overall Participation</p>
+            <p style={{fontSize:12,color:'#888',marginBottom:14}}>Participation, Homework, Tests and Presentations feed into one Overall Participation grade.</p>
+            <WeightSlider label="Participation" value={w.step1.participation} onChange={v=>setW1('participation',v)} locked={locked}/>
+            <WeightSlider label="Homework" value={w.step1.homework} onChange={v=>setW1('homework',v)} locked={locked}/>
+            <WeightSlider label="Tests" value={w.step1.tests} onChange={v=>setW1('tests',v)} locked={locked}/>
+            <WeightSlider label="Presentations" value={w.step1.presentations} onChange={v=>setW1('presentations',v)} locked={locked}/>
+            <WeightTotal weights={w.step1} step={1}/>
+          </div></Card>
+
+          {/* Step 2 weights */}
+          <Card><div style={{padding:16}}>
+            <p style={{fontSize:11,fontWeight:500,color:'#999',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:14}}>Step 2 — Final Grade</p>
+            <p style={{fontSize:12,color:'#888',marginBottom:14}}>The Overall Participation grade is combined with Exam grades to produce the final grade.</p>
+            <WeightSlider label="Overall Participation" value={w.step2.participation} onChange={v=>setW2('participation',v)} locked={locked}/>
+            <WeightSlider label="Exams" value={w.step2.exams} onChange={v=>setW2('exams',v)} locked={locked}/>
+            <WeightTotal weights={w.step2} step={2}/>
+          </div></Card>
+
+          {/* Grade thresholds */}
+          <div>
+            <SectionLabel title="Grade thresholds"/>
+            <Card><div style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
+              <p style={{fontSize:12,color:'#888',lineHeight:1.5}}>Upper cutoff for each grade. The decimal final grade falls into the first grade whose cutoff it is below. Default values match standard rounding.</p>
+              {(cls.thresholds||DEFAULT_THRESHOLDS).map((t,i)=>(
+                <div key={i} style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:13,fontWeight:500,color:PURPLE,width:16,textAlign:'right'}}>{i+1}</span>
+                  <span style={{fontSize:12,color:'#999'}}>up to</span>
+                  <input type="number" step="0.05"
+                    min={(i===0?1.05:(cls.thresholds||DEFAULT_THRESHOLDS)[i-1]+0.05).toFixed(2)}
+                    max={(i===3?4.95:(cls.thresholds||DEFAULT_THRESHOLDS)[i+1]-0.05).toFixed(2)}
+                    value={t.toFixed(2)}
+                    onChange={e=>{const v=parseFloat(e.target.value);if(!isNaN(v))setThreshold(i,v);}}
+                    disabled={locked}
+                    style={{width:64,padding:'5px 8px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,textAlign:'right',background:locked?'#F2F2F7':'white',fontFamily:'inherit'}}/>
+                  <span style={{fontSize:12,color:'#555',flex:1}}>→ grade {i+1}</span>
+                </div>
+              ))}
+              <div style={{paddingTop:6,borderTop:'0.5px solid #E0E0E5'}}>
+                <span style={{fontSize:12,color:'#999'}}>Above {((cls.thresholds||DEFAULT_THRESHOLDS)[3]).toFixed(2)} → grade 5</span>
+              </div>
+            </div></Card>
+          </div>
+
+          {/* Students */}
+          <div>
+            <SectionLabel title={`Students (${cls.students.length})`}/>
+            <Card>
+              {sorted.map((s,i)=>(<div key={s.id}>{i>0&&<Divider/>}
+                {confirmRem===s.id?(<div style={{padding:'10px 16px',background:'#FCEBEB'}}>
+                  <p style={{fontSize:13,color:'#791F1F',marginBottom:8}}>Remove {s.name}? Their grades will also be deleted.</p>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={()=>setConfirmRem(null)} style={{flex:1,padding:'7px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:6,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+                    <button onClick={()=>removeStudent(s.id)} style={{flex:1,padding:'7px',background:'#791F1F',border:'none',borderRadius:6,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Remove</button>
+                  </div>
+                </div>):(<div style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
+                  <span style={{fontSize:14,flex:1}}>{s.name}</span>
+                  <button onClick={()=>!locked&&setConfirmRem(s.id)} style={{background:'none',border:'none',cursor:locked?'default':'pointer',padding:4,display:'flex',opacity:locked?0.3:1}}><XIcon size={16} color="#CCC"/></button>
+                </div>)}
+              </div>))}
+              <Divider/>
+              <div style={{padding:'10px 16px',display:'flex',gap:8}}>
+                <input value={newSt} onChange={e=>!locked&&setNewSt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!locked&&addStudent()} placeholder={locked?'Unlock to add students':'Add a student…'} disabled={locked} style={{flex:1,padding:'8px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:14,background:locked?'#F2F2F7':'white',color:'#1C1C1E',fontFamily:'inherit'}}/>
+                <button onClick={()=>!locked&&addStudent()} disabled={locked||!newSt.trim()} style={{padding:'8px 14px',background:!locked&&newSt.trim()?PURPLE:'#E8E8EE',color:!locked&&newSt.trim()?'white':'#AAA',border:'none',borderRadius:7,fontSize:13,fontWeight:500,cursor:!locked&&newSt.trim()?'pointer':'default'}}>Add</button>
+              </div>
+            </Card>
+          </div>
+
+          {/* Delete class */}
+          <div>{confirmDel?(<div style={{background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10,padding:'12px 14px'}}>
+            <p style={{fontSize:13,color:'#791F1F',marginBottom:10}}>Delete "{cls.name}"? All data will be permanently removed.</p>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setConfirmDel(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+              <button onClick={deleteClass} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Delete class</button>
+            </div>
+          </div>):(<OutlineBtn label="Delete class" onClick={()=>setConfirmDel(true)} danger/>)}</div>
+
+        </div>
+      </div>);
+    }
+
+    // ── Category overview bar row ─────────────────────────────────────────────
+    function CategoryRow({label,grade,color,note,isTotal}){
+      const pct=grade!=null?Math.max(0,Math.round((5-grade)/4*100)):0;
+      return(
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:`${isTotal?11:8}px 16px`,background:isTotal?'#F8F8F8':'white'}}>
+          <span style={{fontSize:12,color:isTotal?'#1C1C1E':'#666',width:96,flexShrink:0,fontWeight:isTotal?500:400}}>{label}</span>
+          <div style={{flex:1,height:isTotal?8:5,background:'#EFEFEF',borderRadius:4,overflow:'hidden'}}>
+            {grade!=null&&<div style={{width:`${pct}%`,height:'100%',background:color,borderRadius:4,opacity:0.85}}/>}
+          </div>
+          <span style={{fontSize:isTotal?13:12,color:grade!=null?'#1C1C1E':'#CCC',width:62,textAlign:'right',flexShrink:0,fontWeight:isTotal?500:400}}>
+            {grade!=null?(note||fmtAvg(grade)):'—'}
+          </span>
+        </div>
+      );
+    }
+
+
+    // ── Student Chart ─────────────────────────────────────────────────────────
+    function StudentChart({partData, gradeData, clsColor, dateRange}){
+      const W=320,H=175,PL=26,PR=14,PT=14,PB=28,PW=320-26-14,PH=175-14-28;
+      const toMs=s=>new Date(s+'T12:00').getTime();
+
+      const allD=[...partData,...gradeData].map(d=>d.date);
+      if(dateRange){allD.push(dateRange.min,dateRange.max);}
+      allD.sort();
+      if(!allD.length)return null;
+
+      const minMs=toMs(allD[0]),maxMs=toMs(allD[allD.length-1]);
+      const span=Math.max(maxMs-minMs,86400000);
+      const xOf=d=>(PL+(toMs(d)-minMs)/span*PW).toFixed(1);
+      const yOf=g=>(PT+(g-1)/4*PH).toFixed(1);
+
+      const partAvg=partData.length?partData.reduce((s,d)=>s+d.grade,0)/partData.length:null;
+
+      const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const ticks=[];
+      const cur=new Date(minMs);cur.setDate(1);
+      while(cur.getTime()<=maxMs){ticks.push({ms:cur.getTime(),label:MONTHS[cur.getMonth()]});cur.setMonth(cur.getMonth()+1);}
+      const ev=Math.ceil(ticks.length/6)||1;
+
+      return(
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{display:'block'}}>
+          {/* Y grid + labels */}
+          {[1,2,3,4,5].map(g=>(
+            <g key={g}>
+              <line x1={PL} y1={yOf(g)} x2={PL+PW} y2={yOf(g)} stroke={g===1||g===5?'#E4E4E4':'#F0F0F0'} strokeWidth="1"/>
+              <text x={PL-4} y={(parseFloat(yOf(g))+4).toFixed(1)} fontSize="9" fill="#C4C4C4" textAnchor="end">{g}</text>
+            </g>
+          ))}
+          <text x={PL-4} y={PT-2} fontSize="8" fill="#D0D0D0" textAnchor="end">↑</text>
+
+          {/* X axis */}
+          <line x1={PL} y1={PT+PH} x2={PL+PW} y2={PT+PH} stroke="#E8E8E8" strokeWidth="0.5"/>
+          {ticks.filter((_,i)=>i%ev===0).map((t,i)=>{
+            const x=(PL+(t.ms-minMs)/span*PW).toFixed(1);
+            return(
+              <g key={i}>
+                <line x1={x} y1={PT+PH} x2={x} y2={PT+PH+3} stroke="#DDD" strokeWidth="1"/>
+                <text x={x} y={PT+PH+12} fontSize="9" fill="#BBBBBB" textAnchor="middle">{t.label}</text>
+              </g>
+            );
+          })}
+
+          {/* Avg dashed line */}
+          {partAvg!==null&&<line x1={PL} y1={yOf(partAvg)} x2={PL+PW} y2={yOf(partAvg)} stroke={clsColor} strokeWidth="1" strokeDasharray="4 3" opacity="0.35"/>}
+
+          {/* Participation line */}
+          {partData.length>1&&<polyline points={partData.map(d=>`${xOf(d.date)},${yOf(d.grade)}`).join(' ')} fill="none" stroke={clsColor} strokeWidth="2" strokeLinejoin="round" opacity="0.85"/>}
+
+          {/* Participation dots */}
+          {partData.map((d,i)=><circle key={i} cx={xOf(d.date)} cy={yOf(d.grade)} r="3.5" fill={clsColor} stroke="white" strokeWidth="1.5"/>)}
+
+          {/* Grade event circles */}
+          {gradeData.map((d,i)=>{
+            const x=xOf(d.date),y=parseFloat(yOf(d.grade));
+            return(
+              <g key={i}>
+                <circle cx={x} cy={y} r="11" fill={TS[d.type]?.bg||'#EEE'} stroke={TS[d.type]?.fg||'#888'} strokeWidth="1.5"/>
+                <text x={x} y={(y+4).toFixed(1)} fontSize="11" fill={TS[d.type]?.fg||'#888'} textAnchor="middle" fontWeight="600">{d.grade}</text>
+              </g>
+            );
+          })}
+        </svg>
+      );
+    }
+
+
+    // ── Student Overview ───────────────────────────────────────────────────────
+    function StudentScreen({data,push,pop,params}){
+      const {classId,studentId}=params;
+      const cls=data.classes.find(c=>c.id===classId);
+      const student=cls?.students.find(s=>s.id===studentId);
+      // All hooks must come before any conditional return
+      const cutoff=data.semesterCutoff||null;
+      const [semFilter,setSemFilter]=useState(params.semFilter||'all');
+      const [collapsed,setCollapsed]=useState({participation:true,exams:true,tests:true,presentations:true,homework:true,gradeCalc:false,catOverview:true,stats:true});
+      const toggle=key=>setCollapsed(c=>({...c,[key]:!c[key]}));
+      if(!cls||!student)return null;
+      const clsColor=getCC(cls);
+
+      const partEntries=(data.lessons||[]).filter(l=>l.classId===classId&&!l.students[studentId]?.absent&&l.students[studentId]?.participation!=null&&inSem(l.date,semFilter,cutoff)).sort((a,b)=>b.date.localeCompare(a.date)).map(l=>({label:fmtDate(l.date),grade:l.students[studentId].participation,onClick:()=>push('lesson',{lessonId:l.id})}));
+      const byType={};['Exam','Test','Presentation'].forEach(type=>{byType[type]=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type===type&&ev.scores?.[studentId]!=null&&inSem(ev.date,semFilter,cutoff)).sort((a,b)=>b.date.localeCompare(a.date)).map(ev=>{const note=ev.notes?.[studentId];return{label:ev.name,sublabel:note?`${fmtDate(ev.date)} · ${note}`:fmtDate(ev.date),grade:ev.scores[studentId],onClick:()=>push('gradeEvent',{classId,eventId:ev.id})};});});
+      const hwEvents=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type==='Homework'&&inSem(ev.date,semFilter,cutoff)).sort((a,b)=>b.date.localeCompare(a.date));
+      const hwStats=hwStatsForStudent(data,classId,studentId,{semFilter,cutoff});
+      const partAvg=avg(partEntries.map(e=>e.grade));
+      const typeAvg={};['Exam','Test','Presentation'].forEach(t=>{typeAvg[t]=avg(byType[t].map(e=>e.grade));});
+
+
+
+      function GradeRow({label,sublabel,grade,onClick}){
+        return(<div onClick={onClick} style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:12,cursor:onClick?'pointer':'default'}}>
+          <div style={{flex:1}}><div style={{fontSize:13,color:'#1C1C1E'}}>{label}</div>{sublabel&&<div style={{fontSize:12,color:'#999',marginTop:2}}>{sublabel}</div>}</div>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontSize:13,background:GS[grade]?.bg,color:GS[grade]?.fg,padding:'3px 10px',borderRadius:5,fontWeight:500}}>{grade}</span>
+            {onClick&&<ChevronRight size={13} color="#DDD"/>}
+          </div>
+        </div>);
+      }
+
+      // Card-based collapsible section: header always visible, rows inside when expanded
+      function Section({title,entries,avgVal,emptyText,sectionKey}){
+        const isColl=collapsed[sectionKey];
+        return(<Card>
+          <CollapsibleHeader title={title} right={avgVal!=null?`avg ${fmtAvg(avgVal)}`:null} collapsed={isColl} onToggle={()=>toggle(sectionKey)}/>
+          {!isColl&&<>
+            <Divider/>
+            {entries.length===0
+              ?<div style={{padding:'12px 16px'}}><p style={{fontSize:13,color:'#CCC'}}>{emptyText}</p></div>
+              :entries.map((e,i)=><div key={i}>{i>0&&<Divider/>}<GradeRow {...e}/></div>)}
+          </>}
+        </Card>);
+      }
+
+      const partChartData=(data.lessons||[]).filter(l=>l.classId===classId&&!l.students[studentId]?.absent&&l.students[studentId]?.participation!=null&&inSem(l.date,semFilter,cutoff)).sort((a,b)=>a.date.localeCompare(b.date)).map(l=>({date:l.date,grade:l.students[studentId].participation}));
+      const gradeChartData=(data.gradeEvents||[]).filter(ev=>ev.classId===classId&&ev.type!=='Homework'&&ev.scores?.[studentId]!=null&&inSem(ev.date,semFilter,cutoff)).sort((a,b)=>a.date.localeCompare(b.date)).map(ev=>({date:ev.date,grade:ev.scores[studentId],type:ev.type}));
+      const gradeResult=computeGrade(data,classId,studentId,{semFilter,cutoff});
+      const allChartDates=[...partChartData,...gradeChartData].map(d=>d.date).sort();
+      const chartDateRange=allChartDates.length?{min:allChartDates[0],max:allChartDates[allChartDates.length-1]}:null;
+
+      return(<div>
+        <Bar title={student.name} onBack={pop} color={clsColor}/>
+        <div style={{padding:'8px 16px 24px',display:'flex',flexDirection:'column',gap:8}}>
+          {cutoff&&<SegCtrl options={[['all','All'],['s1','Semester 1'],['s2','Semester 2']]} value={semFilter} onChange={setSemFilter}/>}
+          <Section title="Participation" entries={partEntries} avgVal={partAvg} emptyText="No participation grades yet." sectionKey="participation"/>
+          {['Exam','Test','Presentation'].map(type=><Section key={type} title={TYPE_PLURAL[type]} entries={byType[type]} avgVal={typeAvg[type]} emptyText={`No ${type.toLowerCase()}s graded yet.`} sectionKey={type.toLowerCase()+'s'}/>)}
+
+          {/* Homework — card-based collapsible */}
+          <Card>
+            <CollapsibleHeader title="Homework" right={hwStats?`${Math.round(hwStats.pct*100)}% → grade ${hwStats.grade}`:null} collapsed={collapsed.homework} onToggle={()=>toggle('homework')}/>
+            {!collapsed.homework&&<>
+              <Divider/>
+              {hwEvents.length===0
+                ?<div style={{padding:'12px 16px'}}><p style={{fontSize:13,color:'#CCC'}}>No homework assigned yet.</p></div>
+                :hwEvents.map((ev,i)=>{const comp=ev.completions?.[studentId];return(<div key={ev.id}>{i>0&&<Divider/>}
+                  <div onClick={()=>push('gradeEvent',{classId,eventId:ev.id})} style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:10,cursor:'pointer'}}>
+                    <div style={{flex:1}}><div style={{fontSize:13,color:'#1C1C1E'}}>{ev.name}</div><div style={{display:'flex',gap:6,marginTop:3,alignItems:'center'}}><span style={{fontSize:12,color:'#999'}}>{fmtDate(ev.date)}</span><WeightBadge weight={ev.weight}/></div></div>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                    {comp?<span style={{fontSize:12,background:CS[comp].bg,color:CS[comp].fg,padding:'3px 10px',borderRadius:5,fontWeight:500}}>{CL[comp]}</span>:<span style={{fontSize:12,color:'#CCC'}}>—</span>}<ChevronRight size={13} color="#DDD"/>
+                    </div>
+                  </div>
+                </div>);})
+              }
+            </>}
+          </Card>
+
+          <GradeCalcSection data={data} classId={classId} studentId={studentId} collapsed={collapsed.gradeCalc} onToggle={()=>toggle('gradeCalc')} semFilter={semFilter} cutoff={cutoff}/>
+
+          {/* Category overview */}
+          <Card>
+            <CollapsibleHeader title="Category overview" collapsed={collapsed.catOverview} onToggle={()=>toggle('catOverview')}/>
+            {!collapsed.catOverview&&<>
+              <Divider/>
+              <CategoryRow label="Participation" grade={partAvg} color={clsColor} note={partAvg!=null?fmtAvg(partAvg):null}/>
+              <CategoryRow label="Homework" grade={hwStats?.grade??null} color={TS.Homework.fg} note={hwStats?`grade ${hwStats.grade}`:null}/>
+              <CategoryRow label="Tests" grade={typeAvg.Test} color={TS.Test.fg} note={typeAvg.Test!=null?fmtAvg(typeAvg.Test):null}/>
+              <CategoryRow label="Presentations" grade={typeAvg.Presentation} color={TS.Presentation.fg} note={typeAvg.Presentation!=null?fmtAvg(typeAvg.Presentation):null}/>
+              <CategoryRow label="Exams" grade={typeAvg.Exam} color={TS.Exam.fg} note={typeAvg.Exam!=null?fmtAvg(typeAvg.Exam):null}/>
+              <Divider/>
+              <CategoryRow label="Final grade" grade={gradeResult.finalGrade} color={clsColor} note={gradeResult.finalGrade!=null?`${gradeResult.finalRounded} (${gradeResult.finalGrade.toFixed(2)})`:null} isTotal/>
+            </>}
+          </Card>
+
+          {/* Statistics */}
+          <Card>
+            <CollapsibleHeader title="Statistics" collapsed={collapsed.stats} onToggle={()=>toggle('stats')}/>
+            {!collapsed.stats&&<>
+              <Divider/>
+              <div style={{padding:'12px 16px 16px'}}>
+                {partChartData.length===0&&gradeChartData.length===0
+                  ?<p style={{fontSize:13,color:'#CCC',textAlign:'center',padding:'16px 0'}}>No data for the selected period.</p>
+                  :<>
+                    {partChartData.length>0&&<>
+                      <p style={{fontSize:10,fontWeight:500,color:'#BBBBBB',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:6}}>Participation — {partChartData.length} data points</p>
+                      <StudentChart partData={partChartData} gradeData={[]} clsColor={clsColor} dateRange={chartDateRange}/>
+                      <div style={{display:'flex',gap:12,marginTop:4}}>
+                        <span style={{fontSize:11,color:'#888',display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:2.5,background:clsColor,display:'inline-block',borderRadius:1,opacity:0.85}}/> Participation</span>
+                        {partChartData.length>1&&<span style={{fontSize:11,color:'#AAA',display:'flex',alignItems:'center',gap:5}}><span style={{width:14,height:0,display:'inline-block',borderTop:`1.5px dashed ${clsColor}`,opacity:0.4}}/> Average</span>}
+                      </div>
+                    </>}
+                    {partChartData.length>0&&gradeChartData.length>0&&<div style={{height:20}}/>}
+                    {gradeChartData.length>0&&<>
+                      <p style={{fontSize:10,fontWeight:500,color:'#BBBBBB',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:6}}>Grade events — {gradeChartData.length} events</p>
+                      <StudentChart partData={[]} gradeData={gradeChartData} clsColor={clsColor} dateRange={chartDateRange}/>
+                      <div style={{display:'flex',gap:10,marginTop:4,flexWrap:'wrap'}}>
+                        {['Exam','Test','Presentation'].filter(t=>gradeChartData.some(d=>d.type===t)).map(t=>(
+                          <span key={t} style={{fontSize:11,color:TS[t].fg,display:'flex',alignItems:'center',gap:4}}>
+                            <span style={{width:11,height:11,borderRadius:'50%',background:TS[t].bg,border:`1.5px solid ${TS[t].fg}`,display:'inline-block'}}/> {t}
+                          </span>
+                        ))}
+                      </div>
+                    </>}
+                    <p style={{fontSize:10,color:'#CCCCCC',marginTop:12,textAlign:'right'}}>1 = best · 5 = worst</p>
+                  </>
+                }
+              </div>
+            </>}
+          </Card>
+
+        </div>
+      </div>);
+    }
+
+    // ── Lesson ─────────────────────────────────────────────────────────────────
+    function LessonScreen({data,setData,pop,params}){
+      const {lessonId}=params;
+      const lesson=(data.lessons||[]).find(l=>l.id===lessonId);
+      const cls=lesson&&data.classes.find(c=>c.id===lesson.classId);
+      const hasData=lesson?Object.keys(lesson.students).length>0:false;
+      const [locked,setLocked]=useState(hasData);
+      const [warning,setWarning]=useState(false);
+      const [delConfirm,setDelConfirm]=useState(false);
+      if(!lesson||!cls)return null;
+      const {date}=lesson;
+      const clsColor=getCC(cls);
+      const isAbsent=sid=>lesson.students[sid]?.absent===true;
+      const getGrade=sid=>lesson.students[sid]?.participation??null;
+      const ungradedPresent=cls.students.filter(s=>!isAbsent(s.id)&&getGrade(s.id)===null).length;
+      function upd(ns){setData(d=>({...d,lessons:d.lessons.map(l=>l.id===lessonId?{...l,students:ns}:l)}));}
+      function toggleAbsent(sid){if(locked)return;const ns={...lesson.students};if(ns[sid]?.absent)delete ns[sid];else ns[sid]={absent:true,participation:null};upd(ns);}
+      function setGrade(sid,g){if(locked)return;const ns={...lesson.students};if(g===null)delete ns[sid];else ns[sid]={absent:false,participation:g};upd(ns);}
+      function tryLeave(){if(ungradedPresent>0){setWarning(true);return;}pop();}
+      function deleteLesson(){setData(d=>({...d,lessons:d.lessons.filter(l=>l.id!==lessonId)}));pop();}
+      const absentCount=cls.students.filter(s=>isAbsent(s.id)).length;
+      const presentCount=cls.students.length-absentCount;
+      const gradedCount=cls.students.filter(s=>!isAbsent(s.id)&&getGrade(s.id)!==null).length;
+      return(<div>
+        <Bar title={fmtDate(date)} onBack={tryLeave} color={clsColor} right={[
+          <BarBtn key="del" onClick={()=>{setDelConfirm(v=>!v);setWarning(false);}} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
+          <BarBtn key="lock" onClick={()=>{setLocked(l=>!l);setWarning(false);}} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
+          <BarBtn key="done" onClick={tryLeave} label="Done"><span style={{fontWeight:500}}>Done</span></BarBtn>,
+        ]}/>
+        {delConfirm&&<div style={{margin:'12px 16px 0',padding:'12px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10}}>
+          <p style={{fontSize:13,color:'#791F1F',marginBottom:10}}>Delete this lesson? All data will be removed.</p>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>setDelConfirm(false)} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:6,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+            <button onClick={deleteLesson} style={{flex:1,padding:'8px',background:'#791F1F',border:'none',borderRadius:6,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Delete</button>
+          </div>
+        </div>}
+        {locked&&!delConfirm&&<LockedBanner/>}
+        <div style={{padding:'10px 16px 4px',display:'flex',gap:6,flexWrap:'wrap'}}>
+          <span style={{fontSize:12,background:'#EAF3DE',color:'#27500A',padding:'3px 10px',borderRadius:6}}>{presentCount} present</span>
+          {absentCount>0&&<span style={{fontSize:12,background:'#FCEBEB',color:'#791F1F',padding:'3px 10px',borderRadius:6}}>{absentCount} absent</span>}
+          <span style={{fontSize:12,background:'#F1EFE8',color:'#444441',padding:'3px 10px',borderRadius:6}}>{gradedCount}/{presentCount} graded</span>
+        </div>
+        {!locked&&<div style={{padding:'4px 16px 10px',fontSize:12,color:'#999'}}>Tap the circle to mark absent. Tap 1–5 to grade participation.</div>}
+        <div style={{padding:'0 16px',marginTop:locked?10:0}}>
+          <Card>{cls.students.map((s,i)=>{
+            const absent=isAbsent(s.id),grade=getGrade(s.id);
+            return(<div key={s.id}>{i>0&&<Divider/>}
+              <div style={{paddingTop:10,paddingRight:16,paddingBottom:absent?10:0,paddingLeft:16,display:'flex',alignItems:'center',gap:12}}>
+                <button onClick={()=>toggleAbsent(s.id)} style={{width:28,height:28,borderRadius:'50%',background:absent?'#FCEBEB':'#EAF3DE',border:'none',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,cursor:locked?'default':'pointer',opacity:locked?0.7:1}}>
+                  {absent?<XIcon size={14} color="#791F1F" sw={2.5}/>:<Check size={14} color="#27500A" sw={2.5}/>}
+                </button>
+                <span style={{fontSize:14,flex:1,color:absent?'#999':'#1C1C1E'}}>{s.name}</span>
+                {absent&&<span style={{fontSize:12,color:'#A32D2D',fontWeight:500}}>Absent</span>}
+              </div>
+              {!absent&&<div style={{paddingTop:6,paddingRight:16,paddingBottom:10,paddingLeft:56}}>
+                <div style={{display:'flex',gap:4,opacity:locked?0.6:1}}>
+                  {[1,2,3,4,5].map(g=>{const sel=grade===g;return<button key={g} onClick={()=>setGrade(s.id,sel?null:g)} style={{width:36,height:36,borderRadius:6,border:sel?`1.5px solid ${GS[g].bd}`:'0.5px solid #E0E0E5',background:sel?GS[g].bg:'white',color:sel?GS[g].fg:'#999',fontSize:14,fontWeight:sel?500:400,cursor:locked?'default':'pointer'}}>{g}</button>;})}
+                </div>
+              </div>}
+            </div>);
+          })}</Card>
+        </div>
+        <div style={{padding:'12px 16px 24px'}}>
+          {!warning&&<PBtn label="Save & back" onClick={tryLeave}/>}
+        </div>
+        {warning&&<div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:540,padding:'12px 16px',background:'#FAEEDA',borderTop:'1px solid #FAC775',zIndex:200,boxSizing:'border-box'}}>
+          <p style={{fontSize:13,color:'#633806',marginBottom:10}}>{ungradedPresent} student{ungradedPresent!==1?'s have':' has'} no participation grade yet.</p>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>setWarning(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #FAC775',borderRadius:7,fontSize:13,color:'#633806',cursor:'pointer',fontWeight:500}}>Keep grading</button>
+            <button onClick={()=>pop()} style={{flex:1,padding:'9px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Save & leave</button>
+          </div>
+        </div>}
+      </div>);
+    }
+
+    // ── Add grade event ────────────────────────────────────────────────────────
+    function AddGradeScreen({data,setData,pop,replace,params}){
+      const {classId}=params;
+      const cls=data.classes.find(c=>c.id===classId);
+      const barColor=getCC(cls);
+      const [type,setType]=useState(null);
+      const [name,setName]=useState('');
+      const [date,setDate]=useState(todayISO());
+      const [weight,setWeight]=useState(2);
+      function create(){if(!name.trim())return;const base={id:uid(),classId,type,name:name.trim(),date};const ev=type==='Homework'?{...base,weight,completions:{}}:{...base,scores:{}};setData(d=>({...d,gradeEvents:[...(d.gradeEvents||[]),ev]}));replace('gradeEvent',{classId,eventId:ev.id});}
+      return(<div>
+        <Bar title="New grade event" onBack={pop} color={barColor}/>
+        <div style={{padding:16,display:'flex',flexDirection:'column',gap:16}}>
+          <div>
+            <label style={{fontSize:12,color:'#666',display:'block',marginBottom:8}}>Type</label>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{['Test','Homework','Presentation','Exam'].map(t=><button key={t} onClick={()=>setType(t)} style={{flex:'1 1 calc(50% - 4px)',padding:'10px 0',borderRadius:8,border:type===t?`2px solid ${TS[t]?.fg}`:'0.5px solid #D0D0D8',background:type===t?TS[t]?.bg:'white',color:type===t?TS[t]?.fg:'#666',fontSize:13,fontWeight:type===t?500:400,cursor:'pointer'}}>{t}</button>)}</div>
+          </div>
+          <FI label="Name" placeholder={type==='Homework'?'e.g. "Essay: My hometown"':type==='Presentation'?'e.g. "Term 1 presentation"':'e.g. "Chapter 5 test"'} value={name} onChange={e=>setName(e.target.value)}/>
+          <FI label="Date" type="date" value={date} onChange={e=>setDate(e.target.value)}/>
+          {type==='Homework'&&(<div>
+            <label style={{fontSize:12,color:'#666',display:'block',marginBottom:4}}>Weight</label>
+            <div style={{fontSize:12,color:'#999',marginBottom:8}}>1 = standard, 2 = important, 3 = major assignment</div>
+            <div style={{display:'flex',gap:8}}>{[1,2,3].map(w=><button key={w} onClick={()=>setWeight(w)} style={{flex:1,padding:'10px 0',borderRadius:8,border:weight===w?`2px solid ${PURPLE}`:'0.5px solid #D0D0D8',background:weight===w?'#EEEDFE':'white',color:weight===w?PURPLE:'#666',fontSize:15,fontWeight:weight===w?500:400,cursor:'pointer'}}>{w}</button>)}</div>
+          </div>)}
+          <PBtn label={type==='Homework'?'Create & mark homework →':'Create & enter grades →'} onClick={create} disabled={!name.trim()||!type}/>
+        </div>
+      </div>);
+    }
+
+    // ── Grade event ────────────────────────────────────────────────────────────
+    function GradeEventScreen({data,setData,pop,params}){
+      const {classId,eventId}=params;
+      const cls=data.classes.find(c=>c.id===classId);
+      const ev=(data.gradeEvents||[]).find(e=>e.id===eventId);
+      const isHW=ev?.type==='Homework';
+      const hasData=ev?(isHW?Object.keys(ev.completions||{}).length>0:Object.keys(ev.scores||{}).length>0):false;
+      const [locked,setLocked]=useState(hasData);
+      const [delConfirm,setDelConfirm]=useState(false);
+      const [editName,setEditName]=useState(ev?.name||'');
+      if(!cls||!ev)return null;
+      const clsColor=getCC(cls);
+      function saveEventName(){if(!editName.trim())return;setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,name:editName.trim()})}));}
+      function updateEvDate(v){setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,date:v})}));}
+      function updateEvWeight(w){setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,weight:w})}));}
+      function setGrade(sid,g){if(locked)return;setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,scores:g==null?Object.fromEntries(Object.entries(e.scores||{}).filter(([k])=>k!==sid)):{...(e.scores||{}),[sid]:g}})}));}
+      function setCompletion(sid,status){if(locked)return;setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,completions:status==null?Object.fromEntries(Object.entries(e.completions||{}).filter(([k])=>k!==sid)):{...(e.completions||{}),[sid]:status}})}));}
+      function setNote(sid,text){setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,notes:{...(e.notes||{}),[sid]:text}})}));}
+      function deleteEvent(){setData(d=>({...d,gradeEvents:d.gradeEvents.filter(e=>e.id!==eventId)}));pop();}
+      const graded=isHW?cls.students.filter(s=>ev.completions?.[s.id]!=null).length:cls.students.filter(s=>ev.scores?.[s.id]!=null).length;
+      return(<div>
+        <Bar title={ev.name} onBack={pop} color={clsColor} right={[
+          <BarBtn key="del" onClick={()=>setDelConfirm(v=>!v)} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
+          <BarBtn key="lock" onClick={()=>setLocked(l=>!l)} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
+          ...(isHW?[<WeightBadge key="w" weight={ev.weight}/>].filter(Boolean):[]),
+          <span key="type" style={{background:TS[ev.type]?.bg,color:TS[ev.type]?.fg,fontSize:12,padding:'4px 10px',borderRadius:6,fontWeight:500}}>{ev.type}</span>,
+        ]}/>
+        {delConfirm&&<div style={{margin:'12px 16px 0',padding:'12px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10}}>
+          <p style={{fontSize:13,color:'#791F1F',marginBottom:10}}>Delete "{ev.name}"? All data will be removed.</p>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>setDelConfirm(false)} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:6,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+            <button onClick={deleteEvent} style={{flex:1,padding:'8px',background:'#791F1F',border:'none',borderRadius:6,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Delete</button>
+          </div>
+        </div>}
+        {locked&&!delConfirm&&<LockedBanner/>}
+        {!locked&&!delConfirm&&<div style={{padding:'10px 16px 4px',display:'flex',flexDirection:'column',gap:12}}>
+          <FI label="Name" value={editName} onChange={e=>setEditName(e.target.value)} onBlur={saveEventName}/>
+          <FI label="Date" type="date" value={ev.date} onChange={e=>updateEvDate(e.target.value)}/>
+          {isHW&&<div>
+            <label style={{fontSize:12,color:'#666',display:'block',marginBottom:4}}>Weight</label>
+            <div style={{fontSize:12,color:'#999',marginBottom:8}}>1 = standard, 2 = important, 3 = major</div>
+            <div style={{display:'flex',gap:8}}>{[1,2,3].map(w=>{const sel=(ev.weight||2)===w;return<button key={w} onClick={()=>updateEvWeight(w)} style={{flex:1,padding:'9px 0',borderRadius:8,border:sel?`2px solid ${PURPLE}`:'0.5px solid #D0D0D8',background:sel?'#EEEDFE':'white',color:sel?PURPLE:'#666',fontSize:13,cursor:'pointer'}}>{w}</button>;})}</div>
+          </div>}
+        </div>}
+        <div style={{padding:'10px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontSize:13,color:'#666'}}>{fmtDate(ev.date)}</span>
+          <span style={{fontSize:12,color:'#999'}}>{graded} / {cls.students.length} {isHW?'marked':'graded'}</span>
+        </div>
+        {!locked&&<div style={{padding:'0 16px 8px',fontSize:12,color:'#999'}}>{isHW?'Tap a status to mark. Tap again to clear.':'Tap a grade to assign it. Tap again to clear.'}</div>}
+        <div style={{padding:'0 16px'}}>
+          <Card>{cls.students.map((s,i)=>{
+            if(isHW){
+              const comp=ev.completions?.[s.id];
+              return(<div key={s.id}>{i>0&&<Divider/>}
+                <div style={{paddingTop:10,paddingRight:16,paddingBottom:0,paddingLeft:16}}><span style={{fontSize:14,color:'#1C1C1E'}}>{s.name}</span></div>
+                <div style={{paddingTop:6,paddingRight:16,paddingBottom:10,paddingLeft:16,display:'flex',gap:6,opacity:locked?0.6:1}}>
+                  {['done','partial','not_done'].map(status=>{const sel=comp===status;return<button key={status} onClick={()=>setCompletion(s.id,sel?null:status)} style={{flex:1,padding:'8px 4px',borderRadius:6,border:sel?`1.5px solid ${CS[status].bd}`:'0.5px solid #E0E0E5',background:sel?CS[status].bg:'white',color:sel?CS[status].fg:'#999',fontSize:13,fontWeight:sel?500:400,cursor:locked?'default':'pointer'}}>{CL[status]}</button>;})}
+                </div>
+              </div>);
+            }
+            const grade=ev.scores?.[s.id];
+            return(<div key={s.id}>{i>0&&<Divider/>}
+              <div style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:12}}>
+                <span style={{fontSize:14,flex:1}}>{s.name}</span>
+                <div style={{display:'flex',gap:4,opacity:locked?0.6:1}}>
+                  {[1,2,3,4,5].map(g=>{const sel=grade===g;return<button key={g} onClick={()=>setGrade(s.id,sel?null:g)} style={{width:36,height:36,borderRadius:6,border:sel?`1.5px solid ${GS[g].bd}`:'0.5px solid #E0E0E5',background:sel?GS[g].bg:'white',color:sel?GS[g].fg:'#999',fontSize:14,fontWeight:sel?500:400,cursor:locked?'default':'pointer'}}>{g}</button>;})}
+                </div>
+              </div>
+              {ev.type==='Presentation'&&(
+                locked
+                  ?(ev.notes?.[s.id]?<div style={{padding:'2px 16px 10px',fontSize:12,color:'#999',fontStyle:'italic'}}>{ev.notes[s.id]}</div>:null)
+                  :<div style={{padding:'2px 16px 10px'}}>
+                    <input type="text" placeholder="Presentation topic…" value={ev.notes?.[s.id]||''}
+                      onChange={e=>setNote(s.id,e.target.value)}
+                      style={{width:'100%',fontSize:12,padding:'5px 9px',borderRadius:6,border:'0.5px solid #D0D0D8',color:'#555',background:'white',fontFamily:'inherit',boxSizing:'border-box'}}/>
+                  </div>
+              )}
+            </div>);
+          })}</Card>
+        </div>
+        <div style={{padding:'12px 16px 24px'}}><PBtn label="Save & back" onClick={pop}/></div>
+      </div>);
+    }
+
+    const root=ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App/>);
+  </script>
+
+  <script>
+    if('serviceWorker' in navigator){
+      window.addEventListener('load',()=>{
+        navigator.serviceWorker.register('./sw.js')
+          .then(()=>console.log('SW registered'))
+          .catch(e=>console.warn('SW failed:',e));
+      });
+    }
+  </script>
+</body>
+</html>
