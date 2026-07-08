@@ -522,15 +522,15 @@
           if(localNewer&&gistNewer){result='conflict';}
           else if(localNewer){
             const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
           }else if(gistNewer){
             const content=gist.files[FILENAME]?.content;
             if(!content)throw new Error('no content');
             const remote=JSON.parse(content);
             setData({classes:[],lessons:[],gradeEvents:[],...remote});
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
           }else{
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString()};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
             if(silent)result=null; // already up to date: no notification for background polls
           }
         }catch(e){result='error';}
@@ -698,7 +698,7 @@
               description:'Gradebook sync',public:false,
               files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}
             });
-            setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Gist created. Copy the Gist ID below to connect your other devices.');
             return;
           }
@@ -717,14 +717,14 @@
             else dir='uptodate';
           }
           if(dir==='uptodate'){
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString()};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Already up to date.');return;
           }
           if(dir==='conflict'){setSyncStatus('conflict');setSyncMsg('');return;}
           if(dir==='push'){
             setSyncMsg('Uploading…');
             const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}});
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Local data uploaded to Gist.');return;
           }
           if(dir==='pull'){
@@ -740,7 +740,7 @@
               if(cryptoKey){const mc=await encryptData(remote,cryptoKey);await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});setSyncMsg('Migrating to encrypted storage…');}
             }
             replaceData({classes:[],lessons:[],gradeEvents:[],...remote});
-            setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
+            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Gist data downloaded and applied.');return;
           }
         }catch(err){
