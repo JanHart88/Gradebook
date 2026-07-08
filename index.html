@@ -3,12 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#534AB7">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gradebook">
-  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Gradebook</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -63,6 +57,42 @@
       }
       return res.json();
     }
+
+    // ── Encryption helpers (Web Crypto API) ───────────────────────────────────
+    const SALT = 'gradebook-pbkdf2-v1';
+    async function deriveKey(passphrase){
+      const enc=new TextEncoder();
+      const km=await crypto.subtle.importKey('raw',enc.encode(passphrase),'PBKDF2',false,['deriveKey']);
+      return crypto.subtle.deriveKey(
+        {name:'PBKDF2',salt:enc.encode(SALT),iterations:200000,hash:'SHA-256'},
+        km,{name:'AES-GCM',length:256},true,['encrypt','decrypt']);
+    }
+    async function exportCryptoKey(k){
+      const raw=await crypto.subtle.exportKey('raw',k);
+      let b='';const u=new Uint8Array(raw);
+      for(let i=0;i<u.length;i+=8192)b+=String.fromCharCode(...u.slice(i,i+8192));
+      return btoa(b);
+    }
+    async function importCryptoKey(b64){
+      const u=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+      return crypto.subtle.importKey('raw',u,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+    }
+    async function encryptData(data,key){
+      const iv=crypto.getRandomValues(new Uint8Array(12));
+      const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(data)));
+      const combined=new Uint8Array(12+ct.byteLength);
+      combined.set(iv);combined.set(new Uint8Array(ct),12);
+      let b='';for(let i=0;i<combined.length;i+=8192)b+=String.fromCharCode(...combined.slice(i,i+8192));
+      return 'ENC:'+btoa(b);
+    }
+    async function decryptData(str,key){
+      if(!str.startsWith('ENC:'))return null;
+      const combined=Uint8Array.from(atob(str.slice(4)),c=>c.charCodeAt(0));
+      const ct=await crypto.subtle.decrypt({name:'AES-GCM',iv:combined.slice(0,12)},key,combined.slice(12));
+      return JSON.parse(new TextDecoder().decode(ct));
+    }
+
+
 
     function backupDue(m){
       if(!m.lastDataChangeDate)return false;
@@ -439,6 +469,8 @@
         setMeta(m=>{const u={...m,lastBackupDate:today};saveMeta(u);return u;});
       }
 
+      const [cryptoKey,setCryptoKey]=useState(null);
+      useEffect(()=>{if(auth.encryptionKey)importCryptoKey(auth.encryptionKey).then(k=>setCryptoKey(k)).catch(()=>{});},[]);
       const [syncState,setSyncState]=useState(null);
       async function triggerSync(){
         if(!auth.githubToken||!meta.gistId||syncState==='syncing')return;
@@ -452,7 +484,7 @@
           const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
           if(localNewer&&gistNewer){result='conflict';}
           else if(localNewer){
-            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}});
+            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
             setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
           }else if(gistNewer){
             const content=gist.files[FILENAME]?.content;
@@ -475,7 +507,7 @@
       const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
 
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
-      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,params:cur.params};
+      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,cryptoKey,setCryptoKey,params:cur.params};
       return(<div style={{maxWidth:540,margin:'0 auto',background:'#F2F2F7',minHeight:'100vh'}}>
         {cur.screen==='home'          &&<HomeScreen          {...sp}/>}
         {cur.screen==='settings'      &&<SettingsScreen      {...sp}/>}
@@ -548,11 +580,27 @@
     }
 
     // ── Settings ───────────────────────────────────────────────────────────────
-    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState}){
+    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState,cryptoKey,setCryptoKey}){
       const [pendingImport,setPendingImport]=useState(null);
       const [importError,setImportError]=useState('');
       const [newYear,setNewYear]=useState(false);
       const [tokenInput,setTokenInput]=useState('');
+      const [passInput,setPassInput]=useState('');
+      const [passConfirm,setPassConfirm]=useState('');
+      const [passError,setPassError]=useState('');
+      const [derivingKey,setDerivingKey]=useState(false);
+      async function setupPassphrase(){
+        if(!passInput||passInput!==passConfirm){setPassError('Passphrases do not match.');return;}
+        setDerivingKey(true);setPassError('');
+        try{
+          const k=await deriveKey(passInput);
+          const b=await exportCryptoKey(k);
+          saveAuthState({...auth,encryptionKey:b});setCryptoKey(k);
+          setPassInput('');setPassConfirm('');
+        }catch(e){setPassError('Failed: '+e.message);}
+        setDerivingKey(false);
+      }
+      function clearPassphrase(){saveAuthState({...auth,encryptionKey:null});setCryptoKey(null);}
       const [gistIdInput,setGistIdInput]=useState('');
       const [syncStatus,setSyncStatus]=useState(null);
       const [syncMsg,setSyncMsg]=useState('');
@@ -607,7 +655,7 @@
             setSyncMsg('Creating private Gist…');
             const gist=await githubAPI('POST','/gists',token,{
               description:'Gradebook sync',public:false,
-              files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}
+              files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}
             });
             setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Gist created. Copy the Gist ID below to connect your other devices.');
@@ -640,9 +688,16 @@
           }
           if(dir==='pull'){
             setSyncMsg('Downloading…');
-            const content=gist.files[FILENAME]?.content;
-            if(!content)throw new Error('Gradebook file not found in Gist.');
-            const remote=JSON.parse(content);
+            const rawContent=gist.files[FILENAME]?.content;
+            if(!rawContent)throw new Error('Gradebook file not found in Gist.');
+            let remote;
+            if(rawContent.startsWith('ENC:')){
+              if(!cryptoKey)throw new Error('Data is encrypted — enter your passphrase in Settings first.');
+              remote=await decryptData(rawContent,cryptoKey);
+            } else {
+              remote=JSON.parse(rawContent);
+              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});setSyncMsg('Migrating to encrypted storage…');}
+            }
             replaceData({classes:[],lessons:[],gradeEvents:[],...remote});
             setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Gist data downloaded and applied.');return;
@@ -751,6 +806,32 @@
                 <button onClick={()=>doSync(false,true)} style={{flex:1,padding:'9px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Keep Gist</button>
               </div>
             </div>}
+          </div>
+
+          {/* ── Encryption ── */}
+          <div>
+            <SectionLabel title="Encryption"/>
+            <Card>
+              <div style={{padding:'12px 16px'}}>
+                <div style={{fontSize:13,color:'#1C1C1E',marginBottom:4}}>Sync passphrase</div>
+                <div style={{fontSize:12,color:'#999',marginBottom:10,lineHeight:1.5}}>Encrypts Gist data with AES-256. All devices need the same passphrase. If lost, encrypted data cannot be recovered — keep regular JSON backups.</div>
+                {auth.encryptionKey
+                  ?<div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{flex:1,padding:'8px 12px',background:'#EAF3DE',borderRadius:7,fontSize:13,color:'#27500A'}}>🔒 Encryption active</div>
+                    <button onClick={clearPassphrase} style={{padding:'7px 12px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#A32D2D',cursor:'pointer'}}>Clear</button>
+                  </div>
+                  :<div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    <input type="password" value={passInput} onChange={e=>setPassInput(e.target.value)} placeholder="Choose a passphrase…" style={{padding:'8px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:13,fontFamily:'inherit'}}/>
+                    <input type="password" value={passConfirm} onChange={e=>setPassConfirm(e.target.value)} placeholder="Confirm passphrase…" style={{padding:'8px 10px',borderRadius:7,border:'0.5px solid #D0D0D8',fontSize:13,fontFamily:'inherit'}}/>
+                    {passError&&<p style={{fontSize:12,color:'#A32D2D'}}>{passError}</p>}
+                    <button onClick={setupPassphrase} disabled={!passInput||passInput!==passConfirm||derivingKey}
+                      style={{padding:'10px',background:(!passInput||passInput!==passConfirm||derivingKey)?'#E8E8EE':PURPLE,color:(!passInput||passInput!==passConfirm||derivingKey)?'#AAA':'white',border:'none',borderRadius:8,fontSize:14,fontWeight:500,cursor:(!passInput||passInput!==passConfirm||derivingKey)?'default':'pointer'}}>
+                      {derivingKey?'Deriving key…':'Set passphrase'}
+                    </button>
+                  </div>
+                }
+              </div>
+            </Card>
           </div>
 
           {/* ── Data & backup ── */}
@@ -1498,16 +1579,6 @@
 
     const root=ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App/>);
-  </script>
-
-  <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load',()=>{
-        navigator.serviceWorker.register('./sw.js')
-          .then(()=>console.log('SW registered'))
-          .catch(e=>console.warn('SW failed:',e));
-      });
-    }
   </script>
 </body>
 </html>
