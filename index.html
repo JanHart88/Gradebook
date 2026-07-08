@@ -501,16 +501,6 @@
         return()=>{if(pollTimerRef.current)clearInterval(pollTimerRef.current);};
       },[ready,auth.githubToken,meta.gistId,meta.autoSync,meta.autoSyncDelay]);
 
-      // Startup version check — fires once when ready and key is loaded
-      useEffect(()=>{
-        if(!ready||startupCheckRef.current)return;
-        if(!auth.githubToken||!meta.gistId)return;
-        if(auth.encryptionKey&&!cryptoKey)return; // wait for key import
-        startupCheckRef.current=true;
-        const t=setTimeout(()=>{if(triggerSyncRef.current)triggerSyncRef.current(true);},500);
-        return()=>clearTimeout(t);
-      },[ready,auth.githubToken,meta.gistId,cryptoKey]);
-
       function handleExport(){
         exportJSON(data);
         const today=todayISO();
@@ -519,6 +509,15 @@
 
       const [cryptoKey,setCryptoKey]=useState(null);
       useEffect(()=>{if(auth.encryptionKey)importCryptoKey(auth.encryptionKey).then(k=>setCryptoKey(k)).catch(()=>{});},[]);
+      // Startup version check — fires once when ready and crypto key is available
+      useEffect(()=>{
+        if(!ready||startupCheckRef.current)return;
+        if(!auth.githubToken||!meta.gistId)return;
+        if(auth.encryptionKey&&!cryptoKey)return;
+        startupCheckRef.current=true;
+        const t=setTimeout(()=>{if(triggerSyncRef.current)triggerSyncRef.current(true);},500);
+        return()=>clearTimeout(t);
+      },[ready,auth.githubToken,meta.gistId,cryptoKey]);
       const [syncState,setSyncState]=useState(null);
       async function triggerSync(silent=false){
         if(!auth.githubToken||!meta.gistId||syncState==='syncing')return;
