@@ -1,0 +1,6035 @@
+{
+  "classes": [
+    {
+      "id": "rc11ert",
+      "name": "Test Klasse - 4A · English",
+      "students": [
+        {
+          "id": "xaji0y6",
+          "name": "Bauer, Anna"
+        },
+        {
+          "id": "dpbhsah",
+          "name": "Gruber, Lukas"
+        },
+        {
+          "id": "xthv3a3",
+          "name": "Huber, Sophie"
+        },
+        {
+          "id": "zmf8mdd",
+          "name": "Kirchner, Max"
+        },
+        {
+          "id": "4v30t9n",
+          "name": "Lehner, Emma"
+        },
+        {
+          "id": "t3w5uzb",
+          "name": "Maier, Felix"
+        },
+        {
+          "id": "ikcidkw",
+          "name": "Müller, Laura"
+        },
+        {
+          "id": "nnhj7xv",
+          "name": "Pichler, David"
+        },
+        {
+          "id": "g0fn9xu",
+          "name": "Rainer, Lisa"
+        },
+        {
+          "id": "y41iblj",
+          "name": "Schneider, Thomas"
+        },
+        {
+          "id": "h75lxo6",
+          "name": "Steiner, Julia"
+        },
+        {
+          "id": "qjiujv6",
+          "name": "Wagner, Michael"
+        },
+        {
+          "id": "oh9sdbd",
+          "name": "Weber, Katharina"
+        },
+        {
+          "id": "w2pcn9t",
+          "name": "Winkler, Benjamin"
+        },
+        {
+          "id": "84azytj",
+          "name": "Zimmermann, Sarah"
+        }
+      ],
+      "weights": {
+        "step1": {
+          "participation": 40,
+          "homework": 15,
+          "tests": 35,
+          "presentations": 10
+        },
+        "step2": {
+          "participation": 50,
+          "exams": 50
+        }
+      },
+      "color": "#8B3A8B",
+      "thresholds": [
+        1.75,
+        2.5,
+        3.5,
+        4.5
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "hcwi64c",
+      "classId": "rc11ert",
+      "date": "2025-09-04",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 5
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": true,
+          "participation": null
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": true,
+          "participation": null
+        }
+      }
+    },
+    {
+      "id": "dom5igq",
+      "classId": "rc11ert",
+      "date": "2025-09-05",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 1
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "6fao72k",
+      "classId": "rc11ert",
+      "date": "2025-09-08",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 1
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 1
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": true,
+          "participation": null
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "8cgvyie",
+      "classId": "rc11ert",
+      "date": "2025-09-10",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": true,
+          "participation": null
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "cq99chj",
+      "classId": "rc11ert",
+      "date": "2025-09-11",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 2
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": true,
+          "participation": null
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "fkhmy4s",
+      "classId": "rc11ert",
+      "date": "2025-09-15",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "bntpbn7",
+      "classId": "rc11ert",
+      "date": "2025-09-16",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "og72oy0",
+      "classId": "rc11ert",
+      "date": "2025-09-18",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": true,
+          "participation": null
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "o9t7e8g",
+      "classId": "rc11ert",
+      "date": "2025-09-22",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "y70hp87",
+      "classId": "rc11ert",
+      "date": "2025-09-23",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "uxqphr6",
+      "classId": "rc11ert",
+      "date": "2025-09-29",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 2
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "owgzrix",
+      "classId": "rc11ert",
+      "date": "2025-10-01",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "v86wzs3",
+      "classId": "rc11ert",
+      "date": "2025-10-02",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 1
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "otohp6v",
+      "classId": "rc11ert",
+      "date": "2025-10-07",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "rny2047",
+      "classId": "rc11ert",
+      "date": "2025-10-09",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 1
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": true,
+          "participation": null
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "8p4q0b8",
+      "classId": "rc11ert",
+      "date": "2025-10-10",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "2flu7u6",
+      "classId": "rc11ert",
+      "date": "2025-10-13",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": true,
+          "participation": null
+        }
+      }
+    },
+    {
+      "id": "xaprpn6",
+      "classId": "rc11ert",
+      "date": "2025-10-17",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": true,
+          "participation": null
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "nb4gh2m",
+      "classId": "rc11ert",
+      "date": "2025-10-20",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "xntm9tm",
+      "classId": "rc11ert",
+      "date": "2025-10-21",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": true,
+          "participation": null
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "gigatj9",
+      "classId": "rc11ert",
+      "date": "2025-10-23",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "uk9e1v2",
+      "classId": "rc11ert",
+      "date": "2025-11-03",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": true,
+          "participation": null
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "aqvkizz",
+      "classId": "rc11ert",
+      "date": "2025-11-04",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 1
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 2
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "37pqkoj",
+      "classId": "rc11ert",
+      "date": "2025-11-06",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "x6gvwrd",
+      "classId": "rc11ert",
+      "date": "2025-11-10",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 1
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "xtogn1w",
+      "classId": "rc11ert",
+      "date": "2025-11-12",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "96qe3rz",
+      "classId": "rc11ert",
+      "date": "2025-11-13",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "04ux5qr",
+      "classId": "rc11ert",
+      "date": "2025-11-18",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": true,
+          "participation": null
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 2
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "f8e8ld4",
+      "classId": "rc11ert",
+      "date": "2025-11-19",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 2
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 1
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "8w5rtwi",
+      "classId": "rc11ert",
+      "date": "2025-11-20",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "vnyruiw",
+      "classId": "rc11ert",
+      "date": "2025-11-25",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "riuu9k9",
+      "classId": "rc11ert",
+      "date": "2025-11-26",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "11yedwb",
+      "classId": "rc11ert",
+      "date": "2025-11-28",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 4
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 2
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "52qc1iy",
+      "classId": "rc11ert",
+      "date": "2025-12-01",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "a5u6hc3",
+      "classId": "rc11ert",
+      "date": "2025-12-03",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 1
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "fodro8b",
+      "classId": "rc11ert",
+      "date": "2025-12-04",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 1
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "bm92h3t",
+      "classId": "rc11ert",
+      "date": "2025-12-08",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "ilgb0s0",
+      "classId": "rc11ert",
+      "date": "2025-12-11",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": true,
+          "participation": null
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "dzp6lfe",
+      "classId": "rc11ert",
+      "date": "2025-12-12",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": true,
+          "participation": null
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "o0llj8y",
+      "classId": "rc11ert",
+      "date": "2025-12-16",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": true,
+          "participation": null
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "z8vmuhx",
+      "classId": "rc11ert",
+      "date": "2025-12-17",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "zlma5uo",
+      "classId": "rc11ert",
+      "date": "2025-12-19",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 1
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "vohsmdy",
+      "classId": "rc11ert",
+      "date": "2026-01-05",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "zs43c5b",
+      "classId": "rc11ert",
+      "date": "2026-01-09",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "ivsolml",
+      "classId": "rc11ert",
+      "date": "2026-01-12",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": true,
+          "participation": null
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "11q7uww",
+      "classId": "rc11ert",
+      "date": "2026-01-19",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "wsqt26q",
+      "classId": "rc11ert",
+      "date": "2026-01-23",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": true,
+          "participation": null
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "n1ybwml",
+      "classId": "rc11ert",
+      "date": "2026-01-27",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "ln23y30",
+      "classId": "rc11ert",
+      "date": "2026-01-28",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "t0sx5wv",
+      "classId": "rc11ert",
+      "date": "2026-01-29",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 5
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "9qkns83",
+      "classId": "rc11ert",
+      "date": "2026-02-10",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "p8hqmab",
+      "classId": "rc11ert",
+      "date": "2026-02-13",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 4
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": true,
+          "participation": null
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "hf7vp1i",
+      "classId": "rc11ert",
+      "date": "2026-02-16",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "sm8t2sa",
+      "classId": "rc11ert",
+      "date": "2026-02-17",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "mx3y9rg",
+      "classId": "rc11ert",
+      "date": "2026-02-19",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "606n9rr",
+      "classId": "rc11ert",
+      "date": "2026-02-23",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 5
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 2
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "ymb5m9j",
+      "classId": "rc11ert",
+      "date": "2026-02-26",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 1
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "qnpcenl",
+      "classId": "rc11ert",
+      "date": "2026-03-02",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": true,
+          "participation": null
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "z9389yz",
+      "classId": "rc11ert",
+      "date": "2026-03-04",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "2twdl9z",
+      "classId": "rc11ert",
+      "date": "2026-03-06",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 2
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "kf7i8sk",
+      "classId": "rc11ert",
+      "date": "2026-03-09",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": true,
+          "participation": null
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": true,
+          "participation": null
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "b5c81jh",
+      "classId": "rc11ert",
+      "date": "2026-03-12",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 5
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 4
+        }
+      }
+    },
+    {
+      "id": "vlz049e",
+      "classId": "rc11ert",
+      "date": "2026-03-13",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 2
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": true,
+          "participation": null
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "5rdoqiv",
+      "classId": "rc11ert",
+      "date": "2026-03-16",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "nknqt3w",
+      "classId": "rc11ert",
+      "date": "2026-03-17",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 3
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "vslwf90",
+      "classId": "rc11ert",
+      "date": "2026-03-20",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 4
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "ibrsz1n",
+      "classId": "rc11ert",
+      "date": "2026-03-25",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 3
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 5
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 4
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "u9rn8qt",
+      "classId": "rc11ert",
+      "date": "2026-03-26",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 3
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "yn9382k",
+      "classId": "rc11ert",
+      "date": "2026-03-30",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 5
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 4
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 4
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": true,
+          "participation": null
+        }
+      }
+    },
+    {
+      "id": "twbozd1",
+      "classId": "rc11ert",
+      "date": "2026-04-01",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 1
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "6g5g79o",
+      "classId": "rc11ert",
+      "date": "2026-04-02",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 1
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 1
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "zamkygv",
+      "classId": "rc11ert",
+      "date": "2026-04-13",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 1
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 1
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "axycelo",
+      "classId": "rc11ert",
+      "date": "2026-04-15",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 4
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 3
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 1
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "1231yv2",
+      "classId": "rc11ert",
+      "date": "2026-04-16",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 5
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 2
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 1
+        },
+        "84azytj": {
+          "absent": true,
+          "participation": null
+        }
+      }
+    },
+    {
+      "id": "ouuylaj",
+      "classId": "rc11ert",
+      "date": "2026-04-20",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 4
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 1
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 5
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 3
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 5
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 3
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "8n6q7nc",
+      "classId": "rc11ert",
+      "date": "2026-04-22",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 2
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 4
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 5
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 4
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 4
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "t3imj70",
+      "classId": "rc11ert",
+      "date": "2026-04-24",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 3
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 1
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 5
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 3
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 4
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 3
+        },
+        "w2pcn9t": {
+          "absent": true,
+          "participation": null
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        }
+      }
+    },
+    {
+      "id": "i6uu13i",
+      "classId": "rc11ert",
+      "date": "2026-04-29",
+      "createdAt": 0,
+      "students": {
+        "xaji0y6": {
+          "absent": true,
+          "participation": null
+        },
+        "dpbhsah": {
+          "absent": true,
+          "participation": null
+        },
+        "xthv3a3": {
+          "absent": true,
+          "participation": null
+        },
+        "zmf8mdd": {
+          "absent": true,
+          "participation": null
+        },
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": true,
+          "participation": null
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": true,
+          "participation": null
+        },
+        "y41iblj": {
+          "absent": true,
+          "participation": null
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 5
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 2
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 5
+        },
+        "84azytj": {
+          "absent": true,
+          "participation": null
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 2
+        }
+      }
+    },
+    {
+      "id": "2lofn1r",
+      "classId": "rc11ert",
+      "date": "2026-04-30",
+      "createdAt": 0,
+      "students": {
+        "4v30t9n": {
+          "absent": true,
+          "participation": null
+        },
+        "t3w5uzb": {
+          "absent": true,
+          "participation": null
+        },
+        "ikcidkw": {
+          "absent": true,
+          "participation": null
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 1
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 1
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 1
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 1
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 1
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 1
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "xaji0y6": {
+          "absent": false,
+          "participation": 4
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 3
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    },
+    {
+      "id": "w29txc6",
+      "classId": "rc11ert",
+      "date": "2026-07-08",
+      "createdAt": 1783526961723,
+      "students": {
+        "xaji0y6": {
+          "absent": false,
+          "participation": 2
+        },
+        "dpbhsah": {
+          "absent": false,
+          "participation": 2
+        },
+        "xthv3a3": {
+          "absent": false,
+          "participation": 3
+        },
+        "zmf8mdd": {
+          "absent": false,
+          "participation": 3
+        },
+        "4v30t9n": {
+          "absent": false,
+          "participation": 2
+        },
+        "t3w5uzb": {
+          "absent": false,
+          "participation": 1
+        },
+        "ikcidkw": {
+          "absent": false,
+          "participation": 2
+        },
+        "nnhj7xv": {
+          "absent": false,
+          "participation": 3
+        },
+        "g0fn9xu": {
+          "absent": false,
+          "participation": 1
+        },
+        "y41iblj": {
+          "absent": false,
+          "participation": 2
+        },
+        "h75lxo6": {
+          "absent": false,
+          "participation": 1
+        },
+        "qjiujv6": {
+          "absent": false,
+          "participation": 3
+        },
+        "oh9sdbd": {
+          "absent": false,
+          "participation": 2
+        },
+        "w2pcn9t": {
+          "absent": false,
+          "participation": 2
+        },
+        "84azytj": {
+          "absent": false,
+          "participation": 3
+        }
+      }
+    }
+  ],
+  "gradeEvents": [
+    {
+      "id": "4kz36u8",
+      "classId": "rc11ert",
+      "type": "Exam",
+      "name": "Midterm Exam",
+      "date": "2025-11-20",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 2,
+        "xthv3a3": 3,
+        "zmf8mdd": 3,
+        "4v30t9n": 3,
+        "t3w5uzb": 3,
+        "ikcidkw": 2,
+        "nnhj7xv": 3,
+        "g0fn9xu": 2,
+        "y41iblj": 4,
+        "h75lxo6": 4,
+        "qjiujv6": 3,
+        "oh9sdbd": 2,
+        "w2pcn9t": 2,
+        "84azytj": 3
+      }
+    },
+    {
+      "id": "0ur5l8a",
+      "classId": "rc11ert",
+      "type": "Exam",
+      "name": "Spring Exam",
+      "date": "2026-03-19",
+      "scores": {
+        "xaji0y6": 5,
+        "dpbhsah": 3,
+        "xthv3a3": 2,
+        "zmf8mdd": 5,
+        "4v30t9n": 5,
+        "t3w5uzb": 4,
+        "ikcidkw": 2,
+        "nnhj7xv": 3,
+        "g0fn9xu": 1,
+        "y41iblj": 5,
+        "h75lxo6": 4,
+        "qjiujv6": 3,
+        "oh9sdbd": 3,
+        "w2pcn9t": 3,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "jsrd9q4",
+      "classId": "rc11ert",
+      "type": "Presentation",
+      "name": "Term 2 Presentation",
+      "date": "2026-02-19",
+      "scores": {
+        "xaji0y6": 4,
+        "dpbhsah": 1,
+        "xthv3a3": 2,
+        "zmf8mdd": 3,
+        "4v30t9n": 4,
+        "t3w5uzb": 5,
+        "ikcidkw": 2,
+        "nnhj7xv": 5,
+        "g0fn9xu": 1,
+        "y41iblj": 4,
+        "h75lxo6": 5,
+        "qjiujv6": 3,
+        "oh9sdbd": 2,
+        "w2pcn9t": 4,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "wrratat",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Grammar Test 1",
+      "date": "2025-09-25",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 3,
+        "xthv3a3": 1,
+        "zmf8mdd": 4,
+        "4v30t9n": 5,
+        "t3w5uzb": 2,
+        "ikcidkw": 2,
+        "nnhj7xv": 3,
+        "g0fn9xu": 2,
+        "y41iblj": 4,
+        "h75lxo6": 3,
+        "qjiujv6": 3,
+        "w2pcn9t": 5,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "tcagrp2",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Vocabulary Test 1",
+      "date": "2025-10-16",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 3,
+        "xthv3a3": 3,
+        "zmf8mdd": 3,
+        "t3w5uzb": 4,
+        "ikcidkw": 1,
+        "nnhj7xv": 3,
+        "g0fn9xu": 1,
+        "y41iblj": 5,
+        "h75lxo6": 4,
+        "qjiujv6": 4,
+        "oh9sdbd": 4,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "6l1f90s",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Reading Comprehension 1",
+      "date": "2025-11-06",
+      "scores": {
+        "xaji0y6": 4,
+        "dpbhsah": 2,
+        "zmf8mdd": 4,
+        "4v30t9n": 3,
+        "nnhj7xv": 4,
+        "y41iblj": 4,
+        "h75lxo6": 5,
+        "qjiujv6": 2,
+        "oh9sdbd": 3,
+        "w2pcn9t": 4,
+        "84azytj": 2
+      }
+    },
+    {
+      "id": "ldalmje",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Grammar Test 2",
+      "date": "2025-12-04",
+      "scores": {
+        "xaji0y6": 3,
+        "xthv3a3": 3,
+        "zmf8mdd": 2,
+        "4v30t9n": 3,
+        "ikcidkw": 3,
+        "nnhj7xv": 2,
+        "g0fn9xu": 2,
+        "y41iblj": 4,
+        "qjiujv6": 1,
+        "oh9sdbd": 3,
+        "w2pcn9t": 3,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "jiwvhdk",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Listening Test",
+      "date": "2026-01-15",
+      "scores": {
+        "xaji0y6": 2,
+        "dpbhsah": 1,
+        "zmf8mdd": 3,
+        "t3w5uzb": 4,
+        "ikcidkw": 3,
+        "nnhj7xv": 4,
+        "g0fn9xu": 2,
+        "y41iblj": 4,
+        "h75lxo6": 4,
+        "qjiujv6": 2,
+        "w2pcn9t": 4,
+        "84azytj": 2
+      }
+    },
+    {
+      "id": "t8qzpky",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Writing Test",
+      "date": "2026-02-26",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 1,
+        "xthv3a3": 2,
+        "zmf8mdd": 3,
+        "4v30t9n": 3,
+        "t3w5uzb": 3,
+        "ikcidkw": 4,
+        "nnhj7xv": 5,
+        "g0fn9xu": 2,
+        "y41iblj": 3,
+        "h75lxo6": 4,
+        "qjiujv6": 3,
+        "w2pcn9t": 3,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "b9yo18p",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Grammar Test 3",
+      "date": "2026-03-26",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 1,
+        "xthv3a3": 3,
+        "zmf8mdd": 2,
+        "4v30t9n": 3,
+        "ikcidkw": 1,
+        "nnhj7xv": 3,
+        "g0fn9xu": 3,
+        "y41iblj": 3,
+        "h75lxo6": 5,
+        "qjiujv6": 2,
+        "w2pcn9t": 3,
+        "84azytj": 1
+      }
+    },
+    {
+      "id": "k3e4xyf",
+      "classId": "rc11ert",
+      "type": "Test",
+      "name": "Reading Comprehension 2",
+      "date": "2026-04-23",
+      "scores": {
+        "dpbhsah": 1,
+        "xthv3a3": 3,
+        "zmf8mdd": 2,
+        "4v30t9n": 5,
+        "t3w5uzb": 3,
+        "g0fn9xu": 2,
+        "y41iblj": 5,
+        "h75lxo6": 5,
+        "qjiujv6": 2,
+        "oh9sdbd": 4,
+        "w2pcn9t": 2,
+        "84azytj": 2
+      }
+    },
+    {
+      "id": "xvwvm4w",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Reading Response 1",
+      "date": "2025-09-15",
+      "weight": 1,
+      "completions": {
+        "xaji0y6": "done",
+        "dpbhsah": "done",
+        "xthv3a3": "not_done",
+        "zmf8mdd": "done",
+        "4v30t9n": "partial",
+        "t3w5uzb": "done",
+        "ikcidkw": "done",
+        "nnhj7xv": "done",
+        "g0fn9xu": "done",
+        "y41iblj": "partial",
+        "qjiujv6": "not_done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "partial"
+      }
+    },
+    {
+      "id": "8sryo4r",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Grammar Drills 1",
+      "date": "2025-10-03",
+      "weight": 1,
+      "completions": {
+        "xaji0y6": "partial",
+        "dpbhsah": "partial",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "t3w5uzb": "done",
+        "ikcidkw": "done",
+        "nnhj7xv": "done",
+        "g0fn9xu": "done",
+        "y41iblj": "not_done",
+        "h75lxo6": "done",
+        "qjiujv6": "done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "not_done"
+      }
+    },
+    {
+      "id": "3p91i3v",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Essay: My Hometown",
+      "date": "2025-10-22",
+      "weight": 3,
+      "completions": {
+        "xthv3a3": "done",
+        "zmf8mdd": "done",
+        "4v30t9n": "partial",
+        "t3w5uzb": "partial",
+        "ikcidkw": "done",
+        "nnhj7xv": "partial",
+        "g0fn9xu": "done",
+        "y41iblj": "done",
+        "h75lxo6": "partial",
+        "qjiujv6": "done",
+        "oh9sdbd": "partial",
+        "w2pcn9t": "not_done",
+        "84azytj": "done"
+      }
+    },
+    {
+      "id": "1yrujoq",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Grammar Drills 2",
+      "date": "2025-11-10",
+      "weight": 1,
+      "completions": {
+        "xaji0y6": "partial",
+        "dpbhsah": "done",
+        "xthv3a3": "done",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "t3w5uzb": "done",
+        "ikcidkw": "done",
+        "nnhj7xv": "partial",
+        "g0fn9xu": "done",
+        "h75lxo6": "not_done",
+        "qjiujv6": "not_done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "not_done"
+      }
+    },
+    {
+      "id": "mybd2qe",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Reading Response 2",
+      "date": "2025-11-28",
+      "weight": 2,
+      "completions": {
+        "xaji0y6": "partial",
+        "xthv3a3": "done",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "ikcidkw": "not_done",
+        "nnhj7xv": "done",
+        "g0fn9xu": "done",
+        "h75lxo6": "done",
+        "qjiujv6": "done",
+        "oh9sdbd": "partial",
+        "w2pcn9t": "done",
+        "84azytj": "partial"
+      }
+    },
+    {
+      "id": "z39pecn",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Christmas Story",
+      "date": "2025-12-15",
+      "weight": 3,
+      "completions": {
+        "xaji0y6": "done",
+        "xthv3a3": "done",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "t3w5uzb": "done",
+        "ikcidkw": "done",
+        "nnhj7xv": "partial",
+        "g0fn9xu": "done",
+        "y41iblj": "partial",
+        "h75lxo6": "partial",
+        "qjiujv6": "done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done"
+      }
+    },
+    {
+      "id": "dtvv2y4",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "New Year Reflection",
+      "date": "2026-01-22",
+      "weight": 2,
+      "completions": {
+        "xaji0y6": "done",
+        "dpbhsah": "not_done",
+        "xthv3a3": "partial",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "t3w5uzb": "done",
+        "ikcidkw": "partial",
+        "nnhj7xv": "done",
+        "g0fn9xu": "done",
+        "y41iblj": "partial",
+        "qjiujv6": "not_done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "done"
+      }
+    },
+    {
+      "id": "jbc2sws",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Grammar Drills 3",
+      "date": "2026-02-09",
+      "weight": 1,
+      "completions": {
+        "xaji0y6": "done",
+        "dpbhsah": "done",
+        "xthv3a3": "done",
+        "4v30t9n": "not_done",
+        "t3w5uzb": "done",
+        "ikcidkw": "partial",
+        "nnhj7xv": "not_done",
+        "g0fn9xu": "done",
+        "y41iblj": "partial",
+        "h75lxo6": "done",
+        "qjiujv6": "not_done",
+        "oh9sdbd": "partial"
+      }
+    },
+    {
+      "id": "ezzf8s2",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Research Summary",
+      "date": "2026-03-05",
+      "weight": 2,
+      "completions": {
+        "xaji0y6": "partial",
+        "xthv3a3": "done",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "t3w5uzb": "partial",
+        "ikcidkw": "partial",
+        "nnhj7xv": "done",
+        "y41iblj": "partial",
+        "h75lxo6": "done",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "not_done",
+        "g0fn9xu": "done"
+      }
+    },
+    {
+      "id": "qnf74t6",
+      "classId": "rc11ert",
+      "type": "Homework",
+      "name": "Spring Essay",
+      "date": "2026-04-02",
+      "weight": 3,
+      "completions": {
+        "xaji0y6": "done",
+        "dpbhsah": "partial",
+        "xthv3a3": "partial",
+        "zmf8mdd": "done",
+        "4v30t9n": "done",
+        "ikcidkw": "partial",
+        "g0fn9xu": "done",
+        "y41iblj": "done",
+        "h75lxo6": "done",
+        "qjiujv6": "partial",
+        "oh9sdbd": "done",
+        "w2pcn9t": "done",
+        "84azytj": "done"
+      }
+    },
+    {
+      "id": "4sup0gs",
+      "classId": "rc11ert",
+      "type": "Exam",
+      "name": "Exam 3",
+      "date": "2026-07-08",
+      "scores": {
+        "xaji0y6": 3,
+        "dpbhsah": 2,
+        "xthv3a3": 2,
+        "zmf8mdd": 3,
+        "4v30t9n": 2,
+        "t3w5uzb": 5,
+        "ikcidkw": 2,
+        "nnhj7xv": 3,
+        "g0fn9xu": 1,
+        "y41iblj": 2,
+        "h75lxo6": 4,
+        "qjiujv6": 2,
+        "oh9sdbd": 3,
+        "w2pcn9t": 2,
+        "84azytj": 2
+      }
+    }
+  ],
+  "semesterCutoff": "2026-01-31"
+}
