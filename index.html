@@ -524,9 +524,17 @@
             const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
             setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
           }else if(gistNewer){
-            const content=gist.files[FILENAME]?.content;
-            if(!content)throw new Error('no content');
-            const remote=JSON.parse(content);
+            const rawContent=gist.files[FILENAME]?.content;
+            if(!rawContent)throw new Error('no content');
+            let remote;
+            if(rawContent.startsWith('ENC:')){
+              if(!cryptoKey)throw new Error('Data is encrypted - enter your passphrase in Settings first.');
+              remote=await decryptData(rawContent,cryptoKey);
+            }else{
+              remote=JSON.parse(rawContent);
+              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});}
+            }
+            skipChangeRef.current=true;
             setData({classes:[],lessons:[],gradeEvents:[],...remote});
             setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
           }else{
