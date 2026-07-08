@@ -36,7 +36,7 @@
     const inSem     = (d,f,c) => !f||f==='all'||!c||!d ? true : f==='s1' ? d<c : d>=c;
 
     const META_KEY     = 'gradebook_meta';
-    const DEFAULT_META = {lastBackupDate:null,lastDataChangeDate:null,backupReminderDays:7,gistId:null,lastSyncDate:null,gistUpdatedAt:null};
+    const DEFAULT_META = {lastBackupDate:null,lastDataChangeDate:null,backupReminderDays:7,gistId:null,lastSyncDate:null,gistUpdatedAt:null,autoSync:true,autoSyncDelay:60};
     function loadMeta(){try{const r=localStorage.getItem(META_KEY);return r?{...DEFAULT_META,...JSON.parse(r)}:DEFAULT_META;}catch{return DEFAULT_META;}}
     function saveMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m));}catch(e){}}
     function daysBetween(a,b){const s=x=>(x||'').slice(0,10);return Math.max(0,Math.floor((new Date(s(b)+'T00:00:00')-new Date(s(a)+'T00:00:00'))/864e5));}
@@ -450,6 +450,11 @@
       const [ready,setReady]=useState(false);
       const dataLoadedRef=useRef(false);
       const skipChangeRef=useRef(false);
+      const autoSyncTimerRef=useRef(null);
+      const pollTimerRef=useRef(null);
+      const triggerSyncRef=useRef(null);
+      const syncStateRef=useRef(null);
+      const metaRef=useRef(null);
       function replaceData(d){skipChangeRef.current=true;setData(d);}
       const cur=nav[nav.length-1];
 
@@ -462,6 +467,38 @@
           else setMeta(m=>{const u={...m,lastDataChangeDate:new Date().toISOString()};saveMeta(u);return u;});
         } else { dataLoadedRef.current=true; }
       },[data,ready]);
+      // Auto-sync debounce — reset timer on every data change
+      useEffect(()=>{
+        if(!ready||!dataLoadedRef.current)return;
+        if(autoSyncTimerRef.current)clearTimeout(autoSyncTimerRef.current);
+        if(auth.githubToken&&meta.gistId&&(meta.autoSync!==false)){
+          const delay=(meta.autoSyncDelay||60)*1000;
+          autoSyncTimerRef.current=setTimeout(()=>{
+            if(syncStateRef.current==='conflict'||syncStateRef.current==='syncing')return;
+            const m=metaRef.current;
+            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&m.lastDataChangeDate>m.lastSyncDate;
+            if(localChanged&&triggerSyncRef.current)triggerSyncRef.current();
+          },delay);
+        }
+        return()=>{if(autoSyncTimerRef.current)clearTimeout(autoSyncTimerRef.current);};
+      },[data]);
+
+      // Polling effect — pull remote changes when idle (no local edits pending)
+      useEffect(()=>{
+        if(!ready)return;
+        if(pollTimerRef.current)clearInterval(pollTimerRef.current);
+        if(auth.githubToken&&meta.gistId&&(meta.autoSync!==false)){
+          const delay=(meta.autoSyncDelay||60)*1000;
+          pollTimerRef.current=setInterval(()=>{
+            const m=metaRef.current;
+            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&m.lastDataChangeDate>m.lastSyncDate;
+            if(localChanged)return; // local changes pending — debounce will push
+            if(syncStateRef.current==='syncing'||syncStateRef.current==='conflict')return;
+            if(triggerSyncRef.current)triggerSyncRef.current(true); // silent pull
+          },delay);
+        }
+        return()=>{if(pollTimerRef.current)clearInterval(pollTimerRef.current);};
+      },[ready,auth.githubToken,meta.gistId,meta.autoSync,meta.autoSyncDelay]);
 
       function handleExport(){
         exportJSON(data);
@@ -472,7 +509,7 @@
       const [cryptoKey,setCryptoKey]=useState(null);
       useEffect(()=>{if(auth.encryptionKey)importCryptoKey(auth.encryptionKey).then(k=>setCryptoKey(k)).catch(()=>{});},[]);
       const [syncState,setSyncState]=useState(null);
-      async function triggerSync(){
+      async function triggerSync(silent=false){
         if(!auth.githubToken||!meta.gistId||syncState==='syncing')return;
         setSyncState('syncing');
         const FILENAME='gradebook.json', token=auth.githubToken;
@@ -494,10 +531,11 @@
             setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString(),gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
           }else{
             setMeta(m=>{const u={...m,lastSyncDate:new Date().toISOString()};saveMeta(u);return u;});
+            if(silent)result=null; // already up to date: no notification for background polls
           }
         }catch(e){result='error';}
         setSyncState(result);
-        if(result!=='conflict')setTimeout(()=>setSyncState(null),3000);
+        if(result&&result!=='conflict')setTimeout(()=>setSyncState(null),3000);
       }
 
       const push=(s,p={})=>setNav(n=>[...n,{screen:s,params:p}]);
@@ -506,6 +544,9 @@
       const goHome=()=>setNav([{screen:'home',params:{}}]);
       const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
 
+      triggerSyncRef.current=triggerSync;
+      syncStateRef.current=syncState;
+      metaRef.current=meta;
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
       const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,cryptoKey,setCryptoKey,params:cur.params};
       return(<div style={{maxWidth:540,margin:'0 auto',background:'#F2F2F7',minHeight:'100vh'}}>
@@ -788,6 +829,27 @@
                     <button onClick={()=>doSync(true,false)} disabled={syncStatus==='syncing'} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#666',cursor:'pointer'}}>↑ Force push</button>
                     <button onClick={()=>doSync(false,true)} disabled={syncStatus==='syncing'} style={{flex:1,padding:'8px',background:'none',border:'0.5px solid #D0D0D8',borderRadius:7,fontSize:13,color:'#666',cursor:'pointer'}}>↓ Force pull</button>
                   </div>
+                  <Divider/>
+                  <div style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:12}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:13,color:'#1C1C1E'}}>Auto-sync</div>
+                      <div style={{fontSize:12,color:'#999',marginTop:1}}>Sync automatically after inactivity</div>
+                    </div>
+                    <input type="checkbox" checked={meta.autoSync!==false}
+                      onChange={e=>{setMeta(m=>{const u={...m,autoSync:e.target.checked};saveMeta(u);return u;});}}
+                      style={{width:18,height:18,cursor:'pointer'}}/>
+                  </div>
+                  {meta.autoSync!==false&&<><Divider/>
+                  <div style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:12}}>
+                    <span style={{fontSize:13,color:'#1C1C1E',flex:1}}>Delay</span>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <input type="number" min="10" max="300" value={meta.autoSyncDelay||60}
+                        onChange={e=>{const v=Math.max(10,Math.min(300,parseInt(e.target.value)||60));setMeta(m=>{const u={...m,autoSyncDelay:v};saveMeta(u);return u;});}}
+                        style={{width:52,padding:'5px 7px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,textAlign:'right',background:'white',fontFamily:'inherit'}}/>
+                      <span style={{fontSize:12,color:'#666'}}>sec</span>
+                    </div>
+                  </div></>
+                  }
                 </div>
               </>}
             </Card>
