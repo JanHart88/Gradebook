@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Gradebook</title>
+  <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -432,7 +433,7 @@
     // ── Sync bar button (shared by Home + Class screens) ──────────────────────
     function SyncBtn({auth,meta,syncState,triggerSync}){
       if(!auth?.githubToken||!meta?.gistId)return null;
-      const icon=syncState==='syncing'?<SyncIcon size={16} color="rgba(255,255,255,0.5)"/>
+      const icon=syncState==='syncing'?<div style={{animation:'spin 1s linear infinite',display:'flex'}}><SyncIcon size={16} color="white"/></div>
         :syncState==='ok'?<Check size={16} color="#C0DD97"/>
         :syncState==='error'?<span style={{color:'#F7C1C1',fontSize:15}}>✕</span>
         :syncState==='conflict'?<span style={{color:'#FAC775',fontSize:15}}>!</span>
