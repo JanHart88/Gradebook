@@ -298,10 +298,13 @@
     const Divider=()=><div style={{height:'0.5px',background:'#E0E0E5'}}/>;
     const Card=({children,style})=><div style={{background:'white',border:'0.5px solid #E0E0E5',borderRadius:12,overflow:'hidden',...style}}>{children}</div>;
 
-    function Bar({title,onBack,right,color=PURPLE}){
+    function Bar({title,subtitle,onBack,right,color=PURPLE}){
       return(<div style={{background:color,padding:'12px 16px',display:'flex',alignItems:'center',gap:10,position:'sticky',top:0,zIndex:100}}>
         {onBack&&<button onClick={onBack} style={{background:'none',border:'none',color:'white',cursor:'pointer',padding:4,display:'flex',alignItems:'center'}}><ArrowLeft size={20} color="white"/></button>}
-        <span style={{color:'white',fontSize:16,fontWeight:500,flex:1}}>{title}</span>
+        <div style={{flex:1,minWidth:0,overflow:'hidden'}}>
+          {subtitle&&<div style={{fontSize:11,color:'rgba(255,255,255,0.65)',letterSpacing:'0.02em',textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap',marginBottom:1}}>{subtitle}</div>}
+          <div style={{color:'white',fontSize:16,fontWeight:500,textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}}>{title}</div>
+        </div>
         {right&&<div style={{display:'flex',gap:8,alignItems:'center'}}>{right}</div>}
       </div>);
     }
@@ -648,6 +651,8 @@
       const [importError,setImportError]=useState('');
       const [newYear,setNewYear]=useState(false);
       const [fullReset,setFullReset]=useState(false);
+      const [showNewYear,setShowNewYear]=useState(false);
+      const [showFullReset,setShowFullReset]=useState(false);
       const [tokenInput,setTokenInput]=useState('');
       const [passInput,setPassInput]=useState('');
       const [passConfirm,setPassConfirm]=useState('');
@@ -982,42 +987,48 @@
           </div>
 
           {/* ── New school year ── */}
-          <div>
-            <SectionLabel title="New school year"/>
-            {!newYear
-              ?<Card><div style={{padding:'14px 16px'}}>
-                <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Keeps your classes and students. Clears all lessons, grades, and the semester cutoff. A backup is exported automatically before the reset.</p>
-                <button onClick={()=>setNewYear(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Start new school year…</button>
-              </div></Card>
-              :<div style={{background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10,padding:'12px 14px'}}>
-                <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Export backup, then reset?</p>
-                <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>A JSON backup will download automatically, then all grades, lessons, and the semester cutoff will be cleared.</p>
-                <div style={{display:'flex',gap:8}}>
-                  <button onClick={()=>setNewYear(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
-                  <button onClick={exportAndReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Export & reset</button>
+          <Card>
+            <CollapsibleHeader title="New school year" collapsed={!showNewYear} onToggle={()=>{setShowNewYear(v=>!v);setNewYear(false);}}/>
+            {showNewYear&&<>
+              <Divider/>
+              {!newYear
+                ?<div style={{padding:'14px 16px'}}>
+                  <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Keeps your classes and students. Clears all lessons, grades, and the semester cutoff. A backup is exported automatically before the reset.</p>
+                  <button onClick={()=>setNewYear(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Start new school year…</button>
                 </div>
-              </div>
-            }
-          </div>
+                :<div style={{padding:'12px 14px'}}>
+                  <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Export backup, then reset?</p>
+                  <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>A JSON backup will download automatically, then all grades, lessons, and the semester cutoff will be cleared.</p>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={()=>setNewYear(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+                    <button onClick={exportAndReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Export & reset</button>
+                  </div>
+                </div>
+              }
+            </>}
+          </Card>
 
           {/* ── Factory reset ── */}
-          <div>
-            <SectionLabel title="Factory reset"/>
-            {!fullReset
-              ?<Card><div style={{padding:'14px 16px'}}>
-                <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Clears all data, classes, students, your GitHub token, Gist ID, and passphrase. Your backup interval and auto-sync preferences are kept. This cannot be undone.</p>
-                <button onClick={()=>setFullReset(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Reset everything…</button>
-              </div></Card>
-              :<div style={{background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10,padding:'12px 14px'}}>
-                <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Reset everything?</p>
-                <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>All classes, students, grades, your token, Gist ID, and passphrase will be permanently cleared on this device.</p>
-                <div style={{display:'flex',gap:8}}>
-                  <button onClick={()=>setFullReset(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
-                  <button onClick={doFullReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Reset everything</button>
+          <Card>
+            <CollapsibleHeader title="Factory reset" collapsed={!showFullReset} onToggle={()=>{setShowFullReset(v=>!v);setFullReset(false);}}/>
+            {showFullReset&&<>
+              <Divider/>
+              {!fullReset
+                ?<div style={{padding:'14px 16px'}}>
+                  <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Clears all data, classes, students, your GitHub token, Gist ID, and passphrase. Your backup interval and auto-sync preferences are kept. This cannot be undone.</p>
+                  <button onClick={()=>setFullReset(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Reset everything…</button>
                 </div>
-              </div>
-            }
-          </div>
+                :<div style={{padding:'12px 14px'}}>
+                  <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Reset everything?</p>
+                  <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>All classes, students, grades, your token, Gist ID, and passphrase will be permanently cleared on this device.</p>
+                  <div style={{display:'flex',gap:8}}>
+                    <button onClick={()=>setFullReset(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+                    <button onClick={doFullReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Reset everything</button>
+                  </div>
+                </div>
+              }
+            </>}
+          </Card>
 
         </div>
       </div>);
@@ -1186,7 +1197,7 @@
       const sorted=cls.students;
 
       return(<div>
-        <Bar title="Class settings" onBack={pop} color={getCC(cls)} right={
+        <Bar title="Class settings" subtitle={cls?.name} onBack={pop} color={getCC(cls)} right={
           <BarBtn onClick={()=>setLocked(l=>!l)} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>
         }/>
         {locked&&<LockedBanner/>}
@@ -1432,7 +1443,7 @@
       const chartDateRange=allChartDates.length?{min:allChartDates[0],max:allChartDates[allChartDates.length-1]}:null;
 
       return(<div>
-        <Bar title={student.name} onBack={pop} color={clsColor}/>
+        <Bar title={student.name} subtitle={cls.name} onBack={pop} color={clsColor}/>
         <div style={{padding:'8px 16px 24px',display:'flex',flexDirection:'column',gap:8}}>
           {cutoff&&<SegCtrl options={[['all','All'],['s1','Semester 1'],['s2','Semester 2']]} value={semFilter} onChange={setSemFilter}/>}
           <Section title="Participation" entries={partEntries} avgVal={partAvg} emptyText="No participation grades yet." sectionKey="participation"/>
@@ -1545,7 +1556,7 @@
       const presentCount=cls.students.length-absentCount;
       const gradedCount=cls.students.filter(s=>!isAbsent(s.id)&&getGrade(s.id)!==null).length;
       return(<div>
-        <Bar title={fmtDate(date)} onBack={tryLeave} color={clsColor} right={[
+        <Bar title={fmtDate(date)} subtitle={cls.name} onBack={tryLeave} color={clsColor} right={[
           <BarBtn key="del" onClick={()=>{setDelConfirm(v=>!v);setWarning(false);}} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
           <BarBtn key="lock" onClick={()=>{setLocked(l=>!l);setWarning(false);}} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
           ...(!locked?[<BarBtn key="qe" onClick={()=>{setQIdx(0);setQOpen(true);}} label="Quick entry"><FastFwdIcon size={15} color="white"/></BarBtn>]:[]),
@@ -1625,7 +1636,7 @@
       const [weight,setWeight]=useState(2);
       function create(){if(!name.trim())return;const base={id:uid(),classId,type,name:name.trim(),date};const ev=type==='Homework'?{...base,weight,completions:{}}:{...base,scores:{}};setData(d=>({...d,gradeEvents:[...(d.gradeEvents||[]),ev]}));replace('gradeEvent',{classId,eventId:ev.id});}
       return(<div>
-        <Bar title="New grade event" onBack={pop} color={barColor}/>
+        <Bar title="New grade event" subtitle={cls?.name} onBack={pop} color={barColor}/>
         <div style={{padding:16,display:'flex',flexDirection:'column',gap:16}}>
           <div>
             <label style={{fontSize:12,color:'#666',display:'block',marginBottom:8}}>Type</label>
@@ -1671,7 +1682,7 @@
       function deleteEvent(){setData(d=>({...d,gradeEvents:d.gradeEvents.filter(e=>e.id!==eventId)}));pop();}
       const graded=isHW?cls.students.filter(s=>ev.completions?.[s.id]!=null).length:cls.students.filter(s=>ev.scores?.[s.id]!=null).length;
       return(<div>
-        <Bar title={ev.name} onBack={pop} color={clsColor} right={[
+        <Bar title={ev.name} subtitle={cls.name} onBack={pop} color={clsColor} right={[
           <BarBtn key="del" onClick={()=>setDelConfirm(v=>!v)} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
           <BarBtn key="lock" onClick={()=>setLocked(l=>!l)} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
           ...(!locked?[<BarBtn key="qe" onClick={()=>{setQIdx(0);setQOpen(true);}} label="Quick entry"><FastFwdIcon size={15} color="white"/></BarBtn>]:[]),
