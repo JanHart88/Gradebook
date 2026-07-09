@@ -643,6 +643,7 @@
       const [pendingImport,setPendingImport]=useState(null);
       const [importError,setImportError]=useState('');
       const [newYear,setNewYear]=useState(false);
+      const [fullReset,setFullReset]=useState(false);
       const [tokenInput,setTokenInput]=useState('');
       const [passInput,setPassInput]=useState('');
       const [passConfirm,setPassConfirm]=useState('');
@@ -686,6 +687,14 @@
         setNewYear(false);goHome();
       }
       function saveToken(){if(!tokenInput.trim())return;saveAuthState({...auth,githubToken:tokenInput.trim()});setTokenInput('');}
+      function doFullReset(){
+        replaceData({classes:[],lessons:[],gradeEvents:[],semesterCutoff:null});
+        setMeta(m=>{const u={...DEFAULT_META,backupReminderDays:m.backupReminderDays,autoSync:m.autoSync,autoSyncDelay:m.autoSyncDelay};saveMeta(u);return u;});
+        saveAuthState({});
+        setCryptoKey(null);
+        setFullReset(false);
+        goHome();
+      }
 
       // Extract a bare Gist ID from either a raw ID or a URL
       function extractGistId(input){
@@ -981,6 +990,25 @@
                 <div style={{display:'flex',gap:8}}>
                   <button onClick={()=>setNewYear(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
                   <button onClick={exportAndReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Export & reset</button>
+                </div>
+              </div>
+            }
+          </div>
+
+          {/* ── Factory reset ── */}
+          <div>
+            <SectionLabel title="Factory reset"/>
+            {!fullReset
+              ?<Card><div style={{padding:'14px 16px'}}>
+                <p style={{fontSize:13,color:'#666',marginBottom:12,lineHeight:1.5}}>Clears all data, classes, students, your GitHub token, Gist ID, and passphrase. Your backup interval and auto-sync preferences are kept. This cannot be undone.</p>
+                <button onClick={()=>setFullReset(true)} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#A32D2D',cursor:'pointer'}}>Reset everything…</button>
+              </div></Card>
+              :<div style={{background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10,padding:'12px 14px'}}>
+                <p style={{fontSize:13,color:'#791F1F',fontWeight:500,marginBottom:4}}>Reset everything?</p>
+                <p style={{fontSize:12,color:'#791F1F',marginBottom:10}}>All classes, students, grades, your token, Gist ID, and passphrase will be permanently cleared on this device.</p>
+                <div style={{display:'flex',gap:8}}>
+                  <button onClick={()=>setFullReset(false)} style={{flex:1,padding:'9px',background:'none',border:'0.5px solid #F7C1C1',borderRadius:7,fontSize:13,color:'#791F1F',cursor:'pointer'}}>Cancel</button>
+                  <button onClick={doFullReset} style={{flex:1,padding:'9px',background:'#791F1F',border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Reset everything</button>
                 </div>
               </div>
             }
