@@ -227,6 +227,7 @@
     const UnlockIcon   = p=><Ico {...p}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 019.9-1"/></Ico>;
     const TrashIcon    = p=><Ico {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></Ico>;
     const EditIcon     = p=><Ico {...p} path="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>;
+    const FastFwdIcon = p=><Ico {...p}><polygon points="2 5 12 12 2 19 2 5"/><polygon points="13 5 23 12 13 19 13 5"/></Ico>;
     const SyncIcon    = p=><Ico {...p}><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></Ico>;
     const SettingsIcon = p=><Ico {...p}><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></Ico>;
 
@@ -1514,6 +1515,13 @@
       const {date}=lesson;
       const clsColor=getCC(cls);
       const isAbsent=sid=>lesson.students[sid]?.absent===true;
+      const [qOpen,setQOpen]=useState(false);
+      const [qIdx,setQIdx]=useState(0);
+      const qStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const qStudent=qOpen&&qIdx<qStudents.length?qStudents[qIdx]:null;
+      function qNext(){if(qIdx+1>=qStudents.length)setQOpen(false);else setQIdx(i=>i+1);}
+      function qGrade(g){const sid=qStudent.id;const ns={...lesson.students,[sid]:{...lesson.students[sid],absent:false,participation:g}};upd(ns);qNext();}
+      function qAbsent(){const sid=qStudent.id;const ns={...lesson.students,[sid]:{absent:true,participation:null}};upd(ns);qNext();}
       const getGrade=sid=>lesson.students[sid]?.participation??null;
       const ungradedPresent=cls.students.filter(s=>!isAbsent(s.id)&&getGrade(s.id)===null).length;
       function upd(ns){setData(d=>({...d,lessons:d.lessons.map(l=>l.id===lessonId?{...l,students:ns}:l)}));}
@@ -1528,7 +1536,7 @@
         <Bar title={fmtDate(date)} onBack={tryLeave} color={clsColor} right={[
           <BarBtn key="del" onClick={()=>{setDelConfirm(v=>!v);setWarning(false);}} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
           <BarBtn key="lock" onClick={()=>{setLocked(l=>!l);setWarning(false);}} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
-          <BarBtn key="done" onClick={tryLeave} label="Done"><span style={{fontWeight:500}}>Done</span></BarBtn>,
+          ...(!locked?[<BarBtn key="qe" onClick={()=>{setQIdx(0);setQOpen(true);}} label="Quick entry"><FastFwdIcon size={15} color="white"/></BarBtn>]:[]),
         ]}/>
         {delConfirm&&<div style={{margin:'12px 16px 0',padding:'12px 14px',background:'#FCEBEB',border:'0.5px solid #F7C1C1',borderRadius:10}}>
           <p style={{fontSize:13,color:'#791F1F',marginBottom:10}}>Delete this lesson? All data will be removed.</p>
@@ -1573,6 +1581,24 @@
             <button onClick={()=>pop()} style={{flex:1,padding:'9px',background:PURPLE,border:'none',borderRadius:7,fontSize:13,color:'white',cursor:'pointer',fontWeight:500}}>Save & leave</button>
           </div>
         </div>}
+      {qOpen&&qStudent&&<div onClick={()=>setQOpen(false)} style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:300}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:'white',borderRadius:16,width:'min(320px,calc(100vw - 32px))',overflow:'hidden',boxShadow:'0 8px 40px rgba(0,0,0,0.25)'}}>
+          <div style={{background:clsColor,padding:'12px 16px',display:'flex',alignItems:'center',gap:10}}>
+            <span style={{color:'white',fontSize:14,fontWeight:500,flex:1}}>Quick entry – {qIdx+1}/{qStudents.length}</span>
+            <button onClick={()=>setQOpen(false)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',padding:4}}><XIcon size={17} color="white"/></button>
+          </div>
+          <div style={{padding:'24px 20px 12px',textAlign:'center'}}>
+            <div style={{fontSize:17,fontWeight:600,color:'#1C1C1E'}}>{qStudent.name}</div>
+          </div>
+          <div style={{padding:'4px 20px 12px',display:'flex',gap:8,justifyContent:'center'}}>
+            {[1,2,3,4,5].map(g=>{const cur=lesson.students[qStudent.id];const sel=!cur?.absent&&cur?.participation===g;return<button key={g} onClick={()=>qGrade(g)} style={{width:50,height:50,borderRadius:8,border:sel?`2px solid ${GS[g].bd}`:'0.5px solid #E0E0E5',background:sel?GS[g].bg:'white',color:sel?GS[g].fg:'#666',fontSize:18,fontWeight:sel?600:400,cursor:'pointer'}}>{g}</button>;})}  
+          </div>
+          <div style={{padding:'4px 20px 20px',display:'flex',gap:8}}>
+            <button onClick={qAbsent} style={{flex:1,padding:'11px',background:lesson.students[qStudent.id]?.absent?'#FCEBEB':'none',border:'0.5px solid #F7C1C1',borderRadius:8,fontSize:14,color:'#791F1F',cursor:'pointer',fontWeight:lesson.students[qStudent.id]?.absent?500:400}}>Absent</button>
+            <button onClick={()=>qNext()} style={{flex:1,padding:'11px',background:'none',border:'0.5px solid #E0E0E5',borderRadius:8,fontSize:14,color:'#666',cursor:'pointer'}}>Skip →</button>
+          </div>
+        </div>
+      </div>}
       </div>);
     }
 
@@ -1617,6 +1643,13 @@
       const [editName,setEditName]=useState(ev?.name||'');
       if(!cls||!ev)return null;
       const clsColor=getCC(cls);
+      const [qOpen,setQOpen]=useState(false);
+      const [qIdx,setQIdx]=useState(0);
+      const qStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const qStudent=qOpen&&qIdx<qStudents.length?qStudents[qIdx]:null;
+      function qNext(){if(qIdx+1>=qStudents.length)setQOpen(false);else setQIdx(i=>i+1);}
+      function qGrade(g){setGrade(qStudent.id,g);qNext();}
+      function qCompletion(status){setCompletion(qStudent.id,status);qNext();}
       function saveEventName(){if(!editName.trim())return;setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,name:editName.trim()})}));}
       function updateEvDate(v){setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,date:v})}));}
       function updateEvWeight(w){setData(d=>({...d,gradeEvents:d.gradeEvents.map(e=>e.id!==eventId?e:{...e,weight:w})}));}
@@ -1629,6 +1662,7 @@
         <Bar title={ev.name} onBack={pop} color={clsColor} right={[
           <BarBtn key="del" onClick={()=>setDelConfirm(v=>!v)} label="Delete"><TrashIcon size={15} color="white"/></BarBtn>,
           <BarBtn key="lock" onClick={()=>setLocked(l=>!l)} label={locked?'Unlock':'Lock'}>{locked?<LockIcon size={15} color="white"/>:<UnlockIcon size={15} color="white"/>}</BarBtn>,
+          ...(!locked?[<BarBtn key="qe" onClick={()=>{setQIdx(0);setQOpen(true);}} label="Quick entry"><FastFwdIcon size={15} color="white"/></BarBtn>]:[]),
           ...(isHW?[<WeightBadge key="w" weight={ev.weight}/>].filter(Boolean):[]),
           <span key="type" style={{background:TS[ev.type]?.bg,color:TS[ev.type]?.fg,fontSize:12,padding:'4px 10px',borderRadius:6,fontWeight:500}}>{ev.type}</span>,
         ]}/>
@@ -1685,6 +1719,32 @@
             </div>);
           })}</Card>
         </div>
+        {qOpen&&qStudent&&<div onClick={()=>setQOpen(false)} style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.45)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:300}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'white',borderRadius:16,width:'min(320px,calc(100vw - 32px))',overflow:'hidden',boxShadow:'0 8px 40px rgba(0,0,0,0.25)'}}>
+            <div style={{background:clsColor,padding:'12px 16px',display:'flex',alignItems:'center',gap:10}}>
+              <span style={{color:'white',fontSize:14,fontWeight:500,flex:1}}>Quick entry – {qIdx+1}/{qStudents.length}</span>
+              <button onClick={()=>setQOpen(false)} style={{background:'none',border:'none',cursor:'pointer',display:'flex',padding:4}}><XIcon size={17} color="white"/></button>
+            </div>
+            <div style={{padding:'24px 20px 12px',textAlign:'center'}}>
+              <div style={{fontSize:17,fontWeight:600,color:'#1C1C1E'}}>{qStudent.name}</div>
+            </div>
+            {isHW
+              ?<>
+                <div style={{padding:'4px 20px 16px',display:'flex',gap:8}}>
+                  {['done','partial','not_done'].map(st=>{const sel=(ev.completions?.[qStudent.id])===st;return<button key={st} onClick={()=>qCompletion(st)} style={{flex:1,padding:'10px 4px',borderRadius:8,border:sel?`1.5px solid ${CS[st].bd}`:'0.5px solid #E0E0E5',background:sel?CS[st].bg:'white',color:sel?CS[st].fg:'#666',fontSize:13,fontWeight:sel?500:400,cursor:'pointer'}}>{CL[st]}</button>;})}
+                </div>
+              </>
+              :<>
+                <div style={{padding:'4px 20px 12px',display:'flex',gap:8,justifyContent:'center'}}>
+                  {[1,2,3,4,5].map(g=>{const sel=(ev.scores?.[qStudent.id])===g;return<button key={g} onClick={()=>qGrade(g)} style={{width:50,height:50,borderRadius:8,border:sel?`2px solid ${GS[g].bd}`:'0.5px solid #E0E0E5',background:sel?GS[g].bg:'white',color:sel?GS[g].fg:'#666',fontSize:18,fontWeight:sel?600:400,cursor:'pointer'}}>{g}</button>;})}
+                </div>
+              </>
+            }
+            <div style={{padding:'4px 20px 20px'}}>
+              <button onClick={()=>qNext()} style={{width:'100%',padding:'11px',background:'none',border:'0.5px solid #E0E0E5',borderRadius:8,fontSize:14,color:'#666',cursor:'pointer'}}>Skip →</button>
+            </div>
+          </div>
+        </div>}
         <div style={{padding:'12px 16px 24px'}}><PBtn label="Save & back" onClick={pop}/></div>
       </div>);
     }
