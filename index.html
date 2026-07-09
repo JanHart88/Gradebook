@@ -34,7 +34,7 @@
     const avg       = arr => { const v=arr.filter(n=>n!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; };
     const fmtAvg    = n => n!=null?n.toFixed(2):'—';
     const clamp     = (v,min,max) => Math.max(min,Math.min(max,v));
-    const inSem     = (d,f,c) => !f||f==='all'||!c||!d ? true : f==='s1' ? d<c : d>=c;
+    const inSem     = (d,f,c) => !f||f==='all'||!c||!d ? true : f==='s1' ? d<=c : d>c;
 
     const META_KEY     = 'gradebook_meta';
     const DEFAULT_META = {lastBackupDate:null,lastDataChangeDate:null,backupReminderDays:7,gistId:null,lastSyncDate:null,gistUpdatedAt:null,autoSync:true,autoSyncDelay:60};
@@ -1070,7 +1070,7 @@
       function openNewLesson(){if(!newDate)return;const lesson={id:uid(),classId:cls.id,date:newDate,createdAt:Date.now(),students:{}};setData(d=>({...d,lessons:[...(d.lessons||[]),lesson]}));setShowNew(false);setNewDate(todayISO());pushWithState('lesson',{lessonId:lesson.id},{tab});}
       const go=(screen,p)=>pushWithState(screen,p,{tab});
       const grEvts=(data.gradeEvents||[]).filter(e=>e.classId===cls.id).sort((a,b)=>b.date.localeCompare(a.date));
-      const sortedStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const sortedStudents=cls.students;
 
       return(<div>
         <Bar title={cls.name} onBack={pop} color={clsColor} right={[
@@ -1163,6 +1163,14 @@
       function addStudent(){if(!newSt.trim())return;setData(d=>({...d,classes:d.classes.map(c=>c.id===classId?{...c,students:[...c.students,{id:uid(),name:newSt.trim()}]}:c)}));setNewSt('');}
       function removeStudent(sid){setData(d=>{const nc=d.classes.map(c=>c.id===classId?{...c,students:c.students.filter(s=>s.id!==sid)}:c);const nl=(d.lessons||[]).map(l=>{if(l.classId!==classId)return l;const ns={...l.students};delete ns[sid];return{...l,students:ns};});const ng=(d.gradeEvents||[]).map(ev=>{if(ev.classId!==classId)return ev;if(ev.type==='Homework'){const nc={...ev.completions};delete nc[sid];return{...ev,completions:nc};}const ns={...ev.scores};delete ns[sid];return{...ev,scores:ns};});return{...d,classes:nc,lessons:nl,gradeEvents:ng};});setConfirmRem(null);}
       function deleteClass(){setData(d=>({...d,classes:d.classes.filter(c=>c.id!==classId),lessons:(d.lessons||[]).filter(l=>l.classId!==classId),gradeEvents:(d.gradeEvents||[]).filter(e=>e.classId!==classId)}));goHome();}
+      function moveStudent(idx,dir){
+        if(locked)return;
+        const s=[...cls.students];
+        const n=idx+dir;
+        if(n<0||n>=s.length)return;
+        [s[idx],s[n]]=[s[n],s[idx]];
+        setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,students:s})}));
+      }
       function setClassColor(color){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,color})}));}
       function setThreshold(i,val){
         if(locked)return;
@@ -1175,7 +1183,7 @@
       function setW1(key,val){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,weights:{...getWeights(c),step1:{...getWeights(c).step1,[key]:val}}})}));}
       function setW2(key,val){if(locked)return;setData(d=>({...d,classes:d.classes.map(c=>c.id!==classId?c:{...c,weights:{...getWeights(c),step2:{...getWeights(c).step2,[key]:val}}})}));}
 
-      const sorted=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const sorted=cls.students;
 
       return(<div>
         <Bar title="Class settings" onBack={pop} color={getCC(cls)} right={
@@ -1256,6 +1264,10 @@
                   </div>
                 </div>):(<div style={{padding:'12px 16px',display:'flex',alignItems:'center',gap:12}}>
                   <span style={{fontSize:14,flex:1}}>{s.name}</span>
+                  {!locked&&<>
+                    <button onClick={()=>moveStudent(i,-1)} disabled={i===0} style={{background:'none',border:'none',cursor:i===0?'default':'pointer',padding:'2px 4px',fontSize:14,color:i===0?'#DDD':'#AAA',lineHeight:1}}>↑</button>
+                    <button onClick={()=>moveStudent(i,1)} disabled={i===sorted.length-1} style={{background:'none',border:'none',cursor:i===sorted.length-1?'default':'pointer',padding:'2px 4px',fontSize:14,color:i===sorted.length-1?'#DDD':'#AAA',lineHeight:1}}>↓</button>
+                  </>}
                   <button onClick={()=>!locked&&setConfirmRem(s.id)} style={{background:'none',border:'none',cursor:locked?'default':'pointer',padding:4,display:'flex',opacity:locked?0.3:1}}><XIcon size={16} color="#CCC"/></button>
                 </div>)}
               </div>))}
@@ -1517,7 +1529,7 @@
       const isAbsent=sid=>lesson.students[sid]?.absent===true;
       const [qOpen,setQOpen]=useState(false);
       const [qIdx,setQIdx]=useState(0);
-      const qStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const qStudents=cls.students;
       const qStudent=qOpen&&qIdx<qStudents.length?qStudents[qIdx]:null;
       function qNext(){if(qIdx+1>=qStudents.length)setQOpen(false);else setQIdx(i=>i+1);}
       function qGrade(g){const sid=qStudent.id;const ns={...lesson.students,[sid]:{...lesson.students[sid],absent:false,participation:g}};upd(ns);qNext();}
@@ -1645,7 +1657,7 @@
       const clsColor=getCC(cls);
       const [qOpen,setQOpen]=useState(false);
       const [qIdx,setQIdx]=useState(0);
-      const qStudents=[...cls.students].sort((a,b)=>a.name.localeCompare(b.name));
+      const qStudents=cls.students;
       const qStudent=qOpen&&qIdx<qStudents.length?qStudents[qIdx]:null;
       function qNext(){if(qIdx+1>=qStudents.length)setQOpen(false);else setQIdx(i=>i+1);}
       function qGrade(g){setGrade(qStudent.id,g);qNext();}
