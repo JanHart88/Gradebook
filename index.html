@@ -453,11 +453,12 @@
       const skipChangeRef=useRef(false);
       const autoSyncTimerRef=useRef(null);
       const pollTimerRef=useRef(null);
+      const syncingRef=useRef(false);
       const triggerSyncRef=useRef(null);
       const syncStateRef=useRef(null);
       const metaRef=useRef(null);
       const startupCheckRef=useRef(false);
-      function replaceData(d){skipChangeRef.current=true;setData(d);}
+      function replaceData(d,isRemote=false){skipChangeRef.current=isRemote;setData(d);}
       const cur=nav[nav.length-1];
 
       useEffect(()=>{const d=loadData();if(d)setData({classes:[],lessons:[],gradeEvents:[],...d});setReady(true);},[]);
@@ -483,7 +484,7 @@
           },delay);
         }
         return()=>{if(autoSyncTimerRef.current)clearTimeout(autoSyncTimerRef.current);};
-      },[data]);
+      },[data,auth.githubToken,meta.gistId,meta.autoSync,meta.autoSyncDelay]);
 
       // Polling effect — pull remote changes when idle (no local edits pending)
       useEffect(()=>{
@@ -526,9 +527,9 @@
         const FILENAME='gradebook.json', token=auth.githubToken;
         let result='ok';
         try{
-          const gist=await githubAPI('GET','/gists/'+meta.gistId,token);
+          let gist=await githubAPI('GET','/gists/'+meta.gistId,token);
           const gistDate=gist.updated_at;
-          const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate>meta.lastSyncDate;
+          const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate.slice(0,19)>meta.lastSyncDate.slice(0,19);
           const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
           if(localNewer&&gistNewer){result='conflict';}
           else if(localNewer){
@@ -553,6 +554,7 @@
             if(silent)result=null; // already up to date: no notification for background polls
           }
         }catch(e){result='error';}
+        finally{syncingRef.current=false;}
         setSyncState(result);
         if(result&&result!=='conflict')setTimeout(()=>setSyncState(null),3000);
       }
@@ -567,7 +569,7 @@
       syncStateRef.current=syncState;
       metaRef.current=meta;
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
-      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,cryptoKey,setCryptoKey,params:cur.params};
+      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,clearSyncState:()=>setSyncState(null),cryptoKey,setCryptoKey,params:cur.params};
       return(<div style={{maxWidth:540,margin:'0 auto',background:'#F2F2F7',minHeight:'100vh'}}>
         {cur.screen==='home'          &&<HomeScreen          {...sp}/>}
         {cur.screen==='settings'      &&<SettingsScreen      {...sp}/>}
@@ -640,7 +642,7 @@
     }
 
     // ── Settings ───────────────────────────────────────────────────────────────
-    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState,cryptoKey,setCryptoKey}){
+    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState,cryptoKey,setCryptoKey,clearSyncState}){
       const [pendingImport,setPendingImport]=useState(null);
       const [importError,setImportError]=useState('');
       const [newYear,setNewYear]=useState(false);
@@ -672,10 +674,10 @@
         reader.onload=ev=>{try{
           const raw=JSON.parse(ev.target.result);
           if(!Array.isArray(raw.classes)){setImportError('Not a valid Gradebook backup file.');return;}
-          const d={classes:[],lessons:[],gradeEvents:[],...raw};
-          if(!Array.isArray(d.lessons)&&d.attendance){
-            const lessons=[];Object.entries(d.attendance||{}).forEach(([classId,dates])=>{Object.entries(dates||{}).forEach(([date,students])=>{const ns={};Object.entries(students||{}).forEach(([sid,val])=>{if(val===false)ns[sid]={absent:true,participation:null};else if(val&&typeof val==='object'&&'absent' in val)ns[sid]=val;});lessons.push({id:uid(),classId,date,createdAt:0,students:ns});});});d.lessons=lessons;delete d.attendance;
+          if(!Array.isArray(raw.lessons)&&raw.attendance){
+            const lessons=[];Object.entries(raw.attendance||{}).forEach(([classId,dates])=>{Object.entries(dates||{}).forEach(([date,students])=>{const ns={};Object.entries(students||{}).forEach(([sid,val])=>{if(val===false)ns[sid]={absent:true,participation:null};else if(val&&typeof val==='object'&&'absent' in val)ns[sid]=val;});lessons.push({id:uid(),classId,date,createdAt:0,students:ns});});});raw.lessons=lessons;delete raw.attendance;
           }
+          const d={classes:[],lessons:[],gradeEvents:[],...raw};
           setPendingImport({data:d,name:file.name});setImportError('');
         }catch{setImportError('Could not read the file — is it a valid JSON export?');}};
         reader.readAsText(file);
@@ -716,6 +718,7 @@
       }
 
       async function doSync(forcePush=false,forcePull=false){
+        if(clearSyncState)clearSyncState(); // clear bar conflict/error state
         setSyncStatus('syncing');setSyncMsg('Checking…');
         const FILENAME='gradebook.json';
         const token=auth.githubToken;
@@ -731,7 +734,7 @@
             return;
           }
           setSyncMsg('Fetching Gist…');
-          const gist=await githubAPI('GET','/gists/'+meta.gistId,token);
+          let gist=await githubAPI('GET','/gists/'+meta.gistId,token);
           const gistDate=gist.updated_at; // full ISO timestamp for same-day accuracy
           let dir;
           if(forcePush) dir='push';
@@ -751,7 +754,7 @@
           if(dir==='conflict'){setSyncStatus('conflict');setSyncMsg('');return;}
           if(dir==='push'){
             setSyncMsg('Uploading…');
-            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:JSON.stringify(data,null,2)}}});
+            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
             setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Local data uploaded to Gist.');return;
           }
@@ -765,9 +768,9 @@
               remote=await decryptData(rawContent,cryptoKey);
             } else {
               remote=JSON.parse(rawContent);
-              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});setSyncMsg('Migrating to encrypted storage…');}
+              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);const mg=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});gist=mg;setSyncMsg('Migrating to encrypted storage…');}
             }
-            replaceData({classes:[],lessons:[],gradeEvents:[],...remote});
+            replaceData({classes:[],lessons:[],gradeEvents:[],...remote},true);
             setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
             setSyncStatus('success');setSyncMsg('Gist data downloaded and applied.');return;
           }
