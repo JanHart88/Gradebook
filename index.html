@@ -565,9 +565,18 @@
               result={status:silent?'idle':'ok',message:'Already up to date.'};
             }else if(dir==='push'){
               say('Uploading…');
-              const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
-              setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,lastDataChangeDate:null};saveMeta(u);return u;}); // clear pending-change flag after a successful push
-              result={status:'ok',message:'Local data uploaded to Gist.'};
+              const body=cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2); // encrypt first (can be slow) so the re-check window below stays tiny
+              // Last-moment concurrency guard: another device may have written to the Gist
+              // between our initial GET and now. Re-check; if it moved, raise a conflict
+              // instead of blindly overwriting their work (Gists have no atomic compare-and-swap).
+              const check=await githubAPI('GET','/gists/'+meta.gistId,token);
+              if(!forcePush&&check.updated_at!==gist.updated_at){
+                result={status:'conflict',message:''};
+              }else{
+                const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:body}}});
+                setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,lastDataChangeDate:null};saveMeta(u);return u;}); // clear pending-change flag after a successful push
+                result={status:'ok',message:'Local data uploaded to Gist.'};
+              }
             }else{
               say('Downloading…');
               const rawContent=gist.files[FILENAME]?.content;
@@ -863,12 +872,15 @@
                   {meta.autoSync!==false&&<><Divider/>
                   <div style={{padding:'10px 16px',display:'flex',alignItems:'center',gap:12}}>
                     <span style={{fontSize:13,color:'#1C1C1E',flex:1}}>Delay</span>
-                    <div style={{display:'flex',alignItems:'center',gap:6}}>
-                      <input type="number" min="10" max="300" value={meta.autoSyncDelay||60}
-                        onChange={e=>{const v=Math.max(10,Math.min(300,parseInt(e.target.value)||60));setMeta(m=>{const u={...m,autoSyncDelay:v};saveMeta(u);return u;});}}
-                        style={{width:52,padding:'5px 7px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,textAlign:'right',background:'white',fontFamily:'inherit'}}/>
-                      <span style={{fontSize:12,color:'#666'}}>sec</span>
-                    </div>
+                    <select value={meta.autoSyncDelay||60}
+                      onChange={e=>{const v=parseInt(e.target.value);setMeta(m=>{const u={...m,autoSyncDelay:v};saveMeta(u);return u;});}}
+                      style={{padding:'5px 8px',borderRadius:6,border:'0.5px solid #D0D0D8',fontSize:13,background:'white',fontFamily:'inherit',cursor:'pointer'}}>
+                      <option value={10}>10 sec</option>
+                      <option value={30}>30 sec</option>
+                      <option value={60}>1 min</option>
+                      <option value={120}>2 min</option>
+                      <option value={300}>5 min</option>
+                    </select>
                   </div></>
                   }
                 </div>
