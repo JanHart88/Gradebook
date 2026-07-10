@@ -41,6 +41,7 @@
     function loadMeta(){try{const r=localStorage.getItem(META_KEY);return r?{...DEFAULT_META,...JSON.parse(r)}:DEFAULT_META;}catch{return DEFAULT_META;}}
     function saveMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m));}catch(e){}}
     function daysBetween(a,b){const s=x=>(x||'').slice(0,10);return Math.max(0,Math.floor((new Date(s(b)+'T00:00:00')-new Date(s(a)+'T00:00:00'))/864e5));}
+    const tsNewer=(a,b)=>(a||'').slice(0,19)>(b||'').slice(0,19); // compare two ISO timestamps to whole-second precision
     const AUTH_KEY='gradebook_auth';
     function loadAuth(){try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'{}');}catch{return {};}}
     function saveAuth(a){try{localStorage.setItem(AUTH_KEY,JSON.stringify(a));}catch(e){}}
@@ -442,7 +443,7 @@
         :syncState==='error'?<span style={{color:'#F7C1C1',fontSize:15}}>✕</span>
         :syncState==='conflict'?<span style={{color:'#FAC775',fontSize:15}}>!</span>
         :<SyncIcon size={16} color="white"/>;
-      return <BarBtn onClick={triggerSync} label="Sync">{icon}</BarBtn>;
+      return <BarBtn onClick={()=>triggerSync(false)} label="Sync">{icon}</BarBtn>;
     }
 
     // ── App shell ──────────────────────────────────────────────────────────────
@@ -457,7 +458,7 @@
       const skipChangeRef=useRef(false);
       const autoSyncTimerRef=useRef(null);
       const pollTimerRef=useRef(null);
-      const syncingRef=useRef(false);
+      const syncBusyRef=useRef(false);
       const triggerSyncRef=useRef(null);
       const syncStateRef=useRef(null);
       const metaRef=useRef(null);
@@ -483,7 +484,7 @@
           autoSyncTimerRef.current=setTimeout(()=>{
             if(syncStateRef.current==='conflict'||syncStateRef.current==='syncing')return;
             const m=metaRef.current;
-            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&m.lastDataChangeDate>m.lastSyncDate;
+            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&tsNewer(m.lastDataChangeDate,m.lastSyncDate);
             if(localChanged&&triggerSyncRef.current)triggerSyncRef.current();
           },delay);
         }
@@ -498,7 +499,7 @@
           const delay=(meta.autoSyncDelay||60)*1000;
           pollTimerRef.current=setInterval(()=>{
             const m=metaRef.current;
-            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&m.lastDataChangeDate>m.lastSyncDate;
+            const localChanged=m.lastDataChangeDate&&m.lastSyncDate&&tsNewer(m.lastDataChangeDate,m.lastSyncDate);
             if(localChanged)return; // local changes pending — debounce will push
             if(syncStateRef.current==='syncing'||syncStateRef.current==='conflict')return;
             if(triggerSyncRef.current)triggerSyncRef.current(true); // silent pull
@@ -515,7 +516,7 @@
 
       const [cryptoKey,setCryptoKey]=useState(null);
       useEffect(()=>{if(auth.encryptionKey)importCryptoKey(auth.encryptionKey).then(k=>setCryptoKey(k)).catch(()=>{});},[]);
-      // Startup version check — fires once when ready and crypto key is available
+      // Startup sync — pulls the latest Gist once when ready and the crypto key (if any) is available
       useEffect(()=>{
         if(!ready||startupCheckRef.current)return;
         if(!auth.githubToken||!meta.gistId)return;
@@ -525,43 +526,79 @@
         return()=>clearTimeout(t);
       },[ready,auth.githubToken,meta.gistId,cryptoKey]);
       const [syncState,setSyncState]=useState(null);
-      async function triggerSync(silent=false){
-        if(!auth.githubToken||!meta.gistId||syncState==='syncing')return;
+      // ── Single shared sync engine ─────────────────────────────────────────
+      // Used by the toolbar button, the background auto-sync/poll timers, AND the
+      // Settings screen. One lock (syncBusyRef), one set of rules — so the two old
+      // parallel implementations can no longer drift or run at the same time.
+      async function runSync({silent=false,forcePush=false,forcePull=false,onProgress}={}){
+        if(!auth.githubToken)return{status:'error',message:'No GitHub token saved.'};
+        if(syncBusyRef.current)return{status:'busy'};
+        syncBusyRef.current=true;
         setSyncState('syncing');
-        const FILENAME='gradebook.json', token=auth.githubToken;
-        let result='ok';
+        const FILENAME='gradebook.json',token=auth.githubToken;
+        const say=m=>{if(onProgress)onProgress(m);};
+        let result;
         try{
-          let gist=await githubAPI('GET','/gists/'+meta.gistId,token);
-          const gistDate=gist.updated_at;
-          const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate.slice(0,19)>meta.lastSyncDate.slice(0,19);
-          const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
-          if(localNewer&&gistNewer){result='conflict';}
-          else if(localNewer){
-            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
-            setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
-          }else if(gistNewer){
-            const rawContent=gist.files[FILENAME]?.content;
-            if(!rawContent)throw new Error('no content');
-            let remote;
-            if(rawContent.startsWith('ENC:')){
-              if(!cryptoKey)throw new Error('Data is encrypted - enter your passphrase in Settings first.');
-              remote=await decryptData(rawContent,cryptoKey);
-            }else{
-              remote=JSON.parse(rawContent);
-              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});}
-            }
-            skipChangeRef.current=true;
-            setData({classes:[],lessons:[],gradeEvents:[],...remote});
-            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
+          if(!meta.gistId){
+            say('Creating private Gist…');
+            const gist=await githubAPI('POST','/gists',token,{description:'Gradebook sync',public:false,files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
+            setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:gist.updated_at};saveMeta(u);return u;});
+            result={status:'created',message:'Gist created. Copy the Gist ID below to connect your other devices.'};
           }else{
-            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
-            if(silent)result=null; // already up to date: no notification for background polls
+            say('Fetching Gist…');
+            const gist=await githubAPI('GET','/gists/'+meta.gistId,token);
+            let dir;
+            if(forcePush)dir='push';
+            else if(forcePull)dir='pull';
+            else{
+              const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&tsNewer(meta.lastDataChangeDate,meta.lastSyncDate);
+              const gistNewer=meta.lastSyncDate?gist.updated_at>meta.lastSyncDate:!!gist.files[FILENAME];
+              if(localNewer&&gistNewer)dir='conflict';
+              else if(localNewer)dir='push';
+              else if(gistNewer)dir='pull';
+              else dir='uptodate';
+            }
+            if(dir==='conflict'){
+              result={status:'conflict',message:''};
+            }else if(dir==='uptodate'){
+              setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at};saveMeta(u);return u;});
+              result={status:silent?'idle':'ok',message:'Already up to date.'};
+            }else if(dir==='push'){
+              say('Uploading…');
+              const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
+              setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,lastDataChangeDate:null};saveMeta(u);return u;}); // clear pending-change flag after a successful push
+              result={status:'ok',message:'Local data uploaded to Gist.'};
+            }else{
+              say('Downloading…');
+              const rawContent=gist.files[FILENAME]?.content;
+              if(!rawContent)throw new Error('Gradebook file not found in Gist.');
+              let remote,effectiveDate=gist.updated_at;
+              if(rawContent.startsWith('ENC:')){
+                if(!cryptoKey)throw new Error('Data is encrypted — enter your passphrase in Settings first.');
+                remote=await decryptData(rawContent,cryptoKey);
+              }else{
+                remote=JSON.parse(rawContent);
+                if(cryptoKey){say('Migrating to encrypted storage…');const mc=await encryptData(remote,cryptoKey);const mg=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});effectiveDate=mg.updated_at;} // capture the PATCH timestamp so we don't re-pull next cycle
+              }
+              skipChangeRef.current=true;
+              setData({classes:[],lessons:[],gradeEvents:[],...remote});
+              setMeta(m=>{const u={...m,lastSyncDate:effectiveDate,lastDataChangeDate:null};saveMeta(u);return u;});
+              result={status:'ok',message:'Gist data downloaded and applied.'};
+            }
           }
-        }catch(e){result='error';}
-        finally{syncingRef.current=false;}
-        setSyncState(result);
-        if(result&&result!=='conflict')setTimeout(()=>setSyncState(null),3000);
+        }catch(err){
+          result={status:'error',message:err.message||'Sync failed. Check your connection and token.'};
+        }finally{
+          syncBusyRef.current=false;
+        }
+        // Reflect the outcome on the toolbar sync icon (single source of truth).
+        const bar=result.status==='created'?'ok':result.status==='idle'?null:result.status;
+        setSyncState(bar);
+        if(bar&&bar!=='conflict')setTimeout(()=>setSyncState(null),3000);
+        return result;
       }
+      // Thin wrapper for the toolbar button and the background timers.
+      function triggerSync(silent=false){return runSync({silent});}
 
       const push=(s,p={})=>setNav(n=>[...n,{screen:s,params:p}]);
       const pop=()=>setNav(n=>n.length>1?n.slice(0,-1):n);
@@ -569,11 +606,9 @@
       const goHome=()=>setNav([{screen:'home',params:{}}]);
       const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
 
-      triggerSyncRef.current=triggerSync;
-      syncStateRef.current=syncState;
-      metaRef.current=meta;
+      useEffect(()=>{triggerSyncRef.current=triggerSync;syncStateRef.current=syncState;metaRef.current=meta;}); // keep refs fresh after every commit (avoids writing refs during render)
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
-      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,syncState,clearSyncState:()=>setSyncState(null),cryptoKey,setCryptoKey,params:cur.params};
+      const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,runSync,syncState,clearSyncState:()=>setSyncState(null),cryptoKey,setCryptoKey,params:cur.params};
       return(<div style={{maxWidth:540,margin:'0 auto',background:'#F2F2F7',minHeight:'100vh'}}>
         {cur.screen==='home'          &&<HomeScreen          {...sp}/>}
         {cur.screen==='settings'      &&<SettingsScreen      {...sp}/>}
@@ -646,7 +681,7 @@
     }
 
     // ── Settings ───────────────────────────────────────────────────────────────
-    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState,cryptoKey,setCryptoKey,clearSyncState}){
+    function SettingsScreen({data,setData,replaceData,pop,goHome,meta,setMeta,handleExport,auth,saveAuthState,cryptoKey,setCryptoKey,clearSyncState,runSync}){
       const [pendingImport,setPendingImport]=useState(null);
       const [importError,setImportError]=useState('');
       const [newYear,setNewYear]=useState(false);
@@ -723,66 +758,15 @@
         setSyncStatus(null);setSyncMsg('');
       }
 
+      // Settings buttons (Sync now / Force push / Force pull / conflict resolve)
+      // all delegate to the one shared engine, then show the detailed status panel.
       async function doSync(forcePush=false,forcePull=false){
-        if(clearSyncState)clearSyncState(); // clear bar conflict/error state
         setSyncStatus('syncing');setSyncMsg('Checking…');
-        const FILENAME='gradebook.json';
-        const token=auth.githubToken;
-        try{
-          if(!meta.gistId){
-            setSyncMsg('Creating private Gist…');
-            const gist=await githubAPI('POST','/gists',token,{
-              description:'Gradebook sync',public:false,
-              files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}
-            });
-            setMeta(m=>{const u={...m,gistId:gist.id,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
-            setSyncStatus('success');setSyncMsg('Gist created. Copy the Gist ID below to connect your other devices.');
-            return;
-          }
-          setSyncMsg('Fetching Gist…');
-          let gist=await githubAPI('GET','/gists/'+meta.gistId,token);
-          const gistDate=gist.updated_at; // full ISO timestamp for same-day accuracy
-          let dir;
-          if(forcePush) dir='push';
-          else if(forcePull) dir='pull';
-          else{
-            const localNewer=meta.lastDataChangeDate&&meta.lastSyncDate&&meta.lastDataChangeDate>meta.lastSyncDate;
-            const gistNewer=meta.lastSyncDate?gistDate>meta.lastSyncDate:!!gist.files[FILENAME];
-            if(localNewer&&gistNewer) dir='conflict';
-            else if(localNewer) dir='push';
-            else if(gistNewer) dir='pull';
-            else dir='uptodate';
-          }
-          if(dir==='uptodate'){
-            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at};saveMeta(u);return u;});
-            setSyncStatus('success');setSyncMsg('Already up to date.');return;
-          }
-          if(dir==='conflict'){setSyncStatus('conflict');setSyncMsg('');return;}
-          if(dir==='push'){
-            setSyncMsg('Uploading…');
-            const updated=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:cryptoKey?await encryptData(data,cryptoKey):JSON.stringify(data,null,2)}}});
-            setMeta(m=>{const u={...m,lastSyncDate:updated.updated_at,gistUpdatedAt:updated.updated_at};saveMeta(u);return u;});
-            setSyncStatus('success');setSyncMsg('Local data uploaded to Gist.');return;
-          }
-          if(dir==='pull'){
-            setSyncMsg('Downloading…');
-            const rawContent=gist.files[FILENAME]?.content;
-            if(!rawContent)throw new Error('Gradebook file not found in Gist.');
-            let remote;
-            if(rawContent.startsWith('ENC:')){
-              if(!cryptoKey)throw new Error('Data is encrypted — enter your passphrase in Settings first.');
-              remote=await decryptData(rawContent,cryptoKey);
-            } else {
-              remote=JSON.parse(rawContent);
-              if(cryptoKey){const mc=await encryptData(remote,cryptoKey);const mg=await githubAPI('PATCH','/gists/'+meta.gistId,token,{files:{[FILENAME]:{content:mc}}});gist=mg;setSyncMsg('Migrating to encrypted storage…');}
-            }
-            replaceData({classes:[],lessons:[],gradeEvents:[],...remote},true);
-            setMeta(m=>{const u={...m,lastSyncDate:gist.updated_at,gistUpdatedAt:gist.updated_at,lastDataChangeDate:null};saveMeta(u);return u;});
-            setSyncStatus('success');setSyncMsg('Gist data downloaded and applied.');return;
-          }
-        }catch(err){
-          setSyncStatus('error');setSyncMsg(err.message||'Sync failed. Check your connection and token.');
-        }
+        const r=await runSync({forcePush,forcePull,onProgress:setSyncMsg});
+        if(r.status==='busy'){setSyncStatus(null);setSyncMsg('');return;}
+        if(r.status==='conflict'){setSyncStatus('conflict');setSyncMsg('');return;}
+        if(r.status==='error'){setSyncStatus('error');setSyncMsg(r.message);return;}
+        setSyncStatus('success');setSyncMsg(r.message);
       }
 
       const daysSince=meta.lastBackupDate?daysBetween(meta.lastBackupDate,todayISO()):null;
