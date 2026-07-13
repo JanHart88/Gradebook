@@ -635,6 +635,31 @@
       const goHome=()=>setNav([{screen:'home',params:{}}]);
       const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
 
+      // ── Android back-button handling ────────────────────────────────────────
+      // Keep exactly one "buffer" history entry pushed whenever we're deeper than
+      // the home screen. Hardware/gesture back then fires `popstate` (which we
+      // catch to pop our own nav stack) instead of exiting the installed PWA.
+      // On home, no buffer entry exists, so back behaves normally (exits/backgrounds).
+      const navRef=useRef(nav);
+      navRef.current=nav;
+      useEffect(()=>{
+        const hasBuffer=window.history.state&&window.history.state.gbBuffer;
+        if(nav.length>1&&!hasBuffer){
+          window.history.pushState({gbBuffer:true},'');
+        }else if(nav.length===1&&hasBuffer){
+          // Screen stack was collapsed via in-app navigation (goHome, tab bar, etc.)
+          // rather than the back button — silently consume the leftover buffer entry.
+          window.history.back();
+        }
+      },[nav]);
+      useEffect(()=>{
+        function onPopState(){
+          if(navRef.current.length>1)setNav(n=>n.length>1?n.slice(0,-1):n);
+        }
+        window.addEventListener('popstate',onPopState);
+        return()=>window.removeEventListener('popstate',onPopState);
+      },[]);
+
       useEffect(()=>{triggerSyncRef.current=triggerSync;syncStateRef.current=syncState;metaRef.current=meta;}); // keep refs fresh after every commit (avoids writing refs during render)
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
       const sp={data,setData,replaceData,push,pop,replace,goHome,pushWithState,meta,setMeta,handleExport,auth,saveAuthState,triggerSync,runSync,syncState,clearSyncState:()=>setSyncState(null),cryptoKey,setCryptoKey,params:cur.params};
