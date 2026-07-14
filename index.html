@@ -629,36 +629,48 @@
       // Thin wrapper for the toolbar button and the background timers.
       function triggerSync(silent=false){return runSync({silent});}
 
-      const push=(s,p={})=>setNav(n=>[...n,{screen:s,params:p}]);
-      const pop=()=>setNav(n=>n.length>1?n.slice(0,-1):n);
-      const replace=(s,p={})=>setNav(n=>[...n.slice(0,-1),{screen:s,params:p}]);
-      const goHome=()=>setNav([{screen:'home',params:{}}]);
-      const pushWithState=(s,p={},state={})=>setNav(n=>[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}]);
-
       // ── Android back-button handling ────────────────────────────────────────
-      // Keep exactly one "buffer" history entry pushed whenever we're deeper than
-      // the home screen. Hardware/gesture back then fires `popstate` (which we
-      // catch to pop our own nav stack) instead of exiting the installed PWA.
-      // On home, no buffer entry exists, so back behaves normally (exits/backgrounds).
+      // Each nav level gets its own history entry, pushed synchronously as part
+      // of the same call that changes `nav` — so back-button taps and screen
+      // depth always match 1:1, with no separate effect/render lag to race.
+      // `history.state.navDepth` tags each entry with the nav length it represents.
       const navRef=useRef(nav);
       navRef.current=nav;
+      useEffect(()=>{ window.history.replaceState({navDepth:1},''); },[]);
       useEffect(()=>{
-        const hasBuffer=window.history.state&&window.history.state.gbBuffer;
-        if(nav.length>1&&!hasBuffer){
-          window.history.pushState({gbBuffer:true},'');
-        }else if(nav.length===1&&hasBuffer){
-          // Screen stack was collapsed via in-app navigation (goHome, tab bar, etc.)
-          // rather than the back button — silently consume the leftover buffer entry.
-          window.history.back();
-        }
-      },[nav]);
-      useEffect(()=>{
-        function onPopState(){
-          if(navRef.current.length>1)setNav(n=>n.length>1?n.slice(0,-1):n);
+        function onPopState(e){
+          const depth=(e.state&&e.state.navDepth)||1;
+          setNav(n=>{
+            if(depth>=n.length)return n; // ignore forward/no-op navigations
+            if(depth<=1)return[{screen:'home',params:{}}];
+            return n.slice(0,depth);
+          });
         }
         window.addEventListener('popstate',onPopState);
         return()=>window.removeEventListener('popstate',onPopState);
       },[]);
+
+      const push=(s,p={})=>setNav(n=>{
+        const next=[...n,{screen:s,params:p}];
+        window.history.pushState({navDepth:next.length},'');
+        return next;
+      });
+      const pop=()=>{ if(navRef.current.length>1)window.history.back(); }; // popstate → onPopState does the actual pop
+      const replace=(s,p={})=>setNav(n=>{
+        const next=[...n.slice(0,-1),{screen:s,params:p}];
+        window.history.replaceState({navDepth:next.length},'');
+        return next;
+      });
+      const goHome=()=>{
+        const steps=navRef.current.length-1;
+        if(steps>0)window.history.go(-steps); // popstate → onPopState resets nav to home
+        else setNav([{screen:'home',params:{}}]);
+      };
+      const pushWithState=(s,p={},state={})=>setNav(n=>{
+        const next=[...n.slice(0,-1),{...n[n.length-1],params:{...n[n.length-1].params,...state}},{screen:s,params:p}];
+        window.history.pushState({navDepth:next.length},'');
+        return next;
+      });
 
       useEffect(()=>{triggerSyncRef.current=triggerSync;syncStateRef.current=syncState;metaRef.current=meta;}); // keep refs fresh after every commit (avoids writing refs during render)
       if(!ready)return <div style={{padding:48,textAlign:'center',color:'#666'}}>Loading…</div>;
